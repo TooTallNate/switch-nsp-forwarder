@@ -9,8 +9,11 @@ interface CallbackConfig {
 	initialDelay: number;
 	repeatDelay: number;
 	lastTriggerTime: number;
-	hasTriggered: boolean;
+	hasMetRepeatDelay: boolean;
 }
+
+const defaultInitialDelay = 500;
+const defaultRepeatDelay = 100;
 
 class GamepadLoop {
 	running = false;
@@ -59,19 +62,20 @@ class GamepadLoop {
 		if (!wasPressed && isPressed) {
 			// First press - trigger immediately
 			config.callback();
-			config.hasTriggered = true;
+			config.hasMetRepeatDelay = false; // Reset to wait for initial delay
 			config.lastTriggerTime = currentTime;
 		} else if (isPressed && config.repeat) {
 			// For repeats, check if we've waited long enough
-			const delay = config.hasTriggered
+			const delay = config.hasMetRepeatDelay
 				? config.repeatDelay
 				: config.initialDelay;
 			if (timeSinceLastTrigger >= delay) {
 				config.callback();
 				config.lastTriggerTime = currentTime;
+				config.hasMetRepeatDelay = true; // Mark that we've waited for initial delay
 			}
 		} else if (!isPressed) {
-			config.hasTriggered = false;
+			config.hasMetRepeatDelay = false;
 			config.lastTriggerTime = 0;
 		}
 	}
@@ -120,8 +124,8 @@ class GamepadLoop {
 		cb: () => void,
 		button: ButtonName,
 		repeat = false,
-		initialDelay = 800,
-		repeatDelay = 300
+		initialDelay = defaultInitialDelay,
+		repeatDelay = defaultRepeatDelay
 	) {
 		const config: CallbackConfig = {
 			callback: cb,
@@ -129,7 +133,7 @@ class GamepadLoop {
 			initialDelay,
 			repeatDelay,
 			lastTriggerTime: 0,
-			hasTriggered: false,
+			hasMetRepeatDelay: false,
 		};
 		this.callbacks.set(config, button);
 		this.queueLoop();
@@ -139,8 +143,8 @@ class GamepadLoop {
 		cb: () => void,
 		direction: Direction,
 		repeat = false,
-		initialDelay = 500,
-		repeatDelay = 100
+		initialDelay = defaultInitialDelay,
+		repeatDelay = defaultRepeatDelay
 	) {
 		const config: CallbackConfig = {
 			callback: cb,
@@ -148,7 +152,7 @@ class GamepadLoop {
 			initialDelay,
 			repeatDelay,
 			lastTriggerTime: 0,
-			hasTriggered: false,
+			hasMetRepeatDelay: false,
 		};
 		this.stickCallbacks.set(config, direction);
 		this.queueLoop();
@@ -221,8 +225,8 @@ export function useGamepadButton(
 	deps: DependencyList,
 	focused = true,
 	repeat = false,
-	initialDelay = 500,
-	repeatDelay = 100
+	initialDelay: number,
+	repeatDelay: number
 ) {
 	const cb = useCallback(callback, deps);
 
@@ -244,8 +248,8 @@ export function useJoystick(
 	deps: DependencyList,
 	focused = true,
 	repeat = false,
-	initialDelay = 500,
-	repeatDelay = 100
+	initialDelay: number,
+	repeatDelay: number
 ) {
 	const cb = useCallback(callback, deps);
 
@@ -270,8 +274,8 @@ export function useDirection(
 	deps: DependencyList,
 	focused = true,
 	repeat = false,
-	initialDelay = 500,
-	repeatDelay = 100
+	initialDelay: number,
+	repeatDelay: number
 ) {
 	const cb = useCallback(callback, deps);
 
@@ -280,25 +284,6 @@ export function useDirection(
 			gamepadLoop.delete(cb);
 			return;
 		}
-
-		// Create separate configs for button and stick
-		const buttonConfig: CallbackConfig = {
-			callback: cb,
-			repeat,
-			initialDelay,
-			repeatDelay,
-			lastTriggerTime: 0,
-			hasTriggered: false,
-		};
-
-		const stickConfig: CallbackConfig = {
-			callback: cb,
-			repeat,
-			initialDelay,
-			repeatDelay,
-			lastTriggerTime: 0,
-			hasTriggered: false,
-		};
 
 		// Add both callbacks with their respective configs
 		gamepadLoop.add(cb, direction, repeat, initialDelay, repeatDelay);
