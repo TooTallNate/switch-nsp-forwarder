@@ -25,15 +25,21 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 	const padding = 8;
 	const visibleHeight = root.ctx.canvas.height - 80;
 	const itemsPerPage = Math.floor(visibleHeight / (itemHeight + padding * 2));
+	const centeringPadding = Math.floor(
+		(visibleHeight % (itemHeight + padding * 2)) / 2
+	);
 
-	// Calculate if we have items above/below
+	// Calculate if we have items above
 	const hasItemsAbove = scrollOffset > 0;
-	const hasItemsBelow = scrollOffset + itemsPerPage < numEntries;
+	// Calculate if we have items below
+	const hasItemsBelow =
+		scrollOffset + itemsPerPage + (hasItemsAbove ? 1 : 0) < numEntries;
 
+	// Calculate visible entries
 	const visibleEntries = entries.slice(
 		scrollOffset,
-		itemsPerPage +
-			scrollOffset -
+		scrollOffset +
+			itemsPerPage -
 			(hasItemsAbove ? 1 : 0) -
 			(hasItemsBelow ? 1 : 0)
 	);
@@ -68,35 +74,19 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 		[dir, onClose, onSelect]
 	);
 
-	useGamepadButton(
-		"A",
-		() => {
-			doSelect(entries[selectedIndex]);
-		},
-		[doSelect, entries, selectedIndex],
-		focused
-	);
-
-	// FIXME: exit the picker when we're at the root directory
-	useGamepadButton(
-		"B",
-		() => doSelect(entries[0]),
-		[doSelect, entries],
-		focused
-	);
-
 	useDirection(
 		"Up",
 		() => {
 			setSelectedIndex((i) => {
 				const newIndex = Math.max(0, i - 1);
-				if (newIndex < scrollOffset) {
-					setScrollOffset(newIndex);
+				// If we're at the top of the visible area and there are items above
+				if (newIndex === scrollOffset && scrollOffset > 0) {
+					setScrollOffset(Math.max(0, scrollOffset - 1));
 				}
 				return newIndex;
 			});
 		},
-		[numEntries, scrollOffset, itemsPerPage],
+		[scrollOffset],
 		focused,
 		true
 	);
@@ -106,15 +96,39 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 		() => {
 			setSelectedIndex((i) => {
 				const newIndex = Math.min(numEntries - 1, i + 1);
-				if (newIndex >= scrollOffset + itemsPerPage) {
-					setScrollOffset(newIndex - itemsPerPage + 1);
+				// If we're at the bottom of the visible area and there are items below
+				if (
+					newIndex >= scrollOffset + visibleEntries.length &&
+					scrollOffset + visibleEntries.length < numEntries
+				) {
+					setScrollOffset(
+						Math.min(numEntries - itemsPerPage, scrollOffset + 1)
+					);
 				}
 				return newIndex;
 			});
 		},
-		[numEntries, scrollOffset, itemsPerPage],
+		[numEntries, scrollOffset, visibleEntries.length],
 		focused,
 		true
+	);
+
+	useGamepadButton(
+		"A",
+		() => {
+			const adjustedIndex = selectedIndex - (scrollOffset > 0 ? 1 : 0);
+			doSelect(entries[adjustedIndex]);
+		},
+		[doSelect, entries, selectedIndex, scrollOffset],
+		focused
+	);
+
+	// FIXME: exit the picker when we're at the root directory
+	useGamepadButton(
+		"B",
+		() => doSelect(entries[0]),
+		[doSelect, entries],
+		focused
 	);
 
 	useEffect(() => {
@@ -165,31 +179,39 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 					fill="black"
 					lineWidth={4}
 				/>
-				{visibleEntries.map((entry, i) => (
-					<>
-						{i === 0 && hasItemsAbove && (
-							<Arrow direction="Up" y={40} />
-						)}
-						<FilePickerItem
-							key={entry.name}
-							entry={entry}
-							index={scrollOffset + i}
-							selected={scrollOffset + i === selectedIndex}
-							scrollOffset={scrollOffset}
-						/>
-						{i === itemsPerPage - 1 && hasItemsBelow && (
-							<Text
-								fill="white"
-								fontSize={20}
-								x={(root.ctx.canvas.width - 80) / 2}
-								y={root.ctx.canvas.height - 120} // add extra for the text height
-								textAlign="center"
-							>
-								▼
-							</Text>
-						)}
-					</>
-				))}
+				<Group
+					width={root.ctx.canvas.width - 80}
+					height={root.ctx.canvas.height - 80}
+					y={centeringPadding}
+					x={0}
+				>
+					{visibleEntries.map((entry, i) => (
+						<>
+							{i === 0 && hasItemsAbove && (
+								<Arrow direction="Up" index={0} />
+							)}
+							<FilePickerItem
+								key={entry.name}
+								entry={entry}
+								index={scrollOffset + i}
+								selected={
+									scrollOffset +
+										i +
+										(hasItemsAbove ? 1 : 0) ===
+									selectedIndex
+								}
+								scrollOffset={scrollOffset}
+							/>
+							{i === visibleEntries.length - 1 &&
+								hasItemsBelow && (
+									<Arrow
+										direction="Down"
+										index={itemsPerPage - 1}
+									/>
+								)}
+						</>
+					))}
+				</Group>
 				<Rect
 					width={root.ctx.canvas.width - 80}
 					height={root.ctx.canvas.height - 80}
@@ -204,18 +226,21 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 function Arrow({
 	direction,
 	index,
-	scrollOffset,
 }: {
 	direction: "Up" | "Down";
 	index: number;
-	scrollOffset: number;
 }) {
 	const width = useRoot().ctx.canvas.width - 80;
 	const height = 20;
 	const padding = 8;
-	const y = (height + padding * 2) * (index - scrollOffset);
+	const y = (height + padding * 2) * index;
 	return (
-		<Group width={width} height={height + padding * 2} x={0} y={y}>
+		<Group
+			width={width}
+			height={height + padding * 2}
+			x={padding * 2}
+			y={y}
+		>
 			<Text
 				fill="white"
 				fontSize={height}
@@ -246,7 +271,10 @@ function FilePickerItem({
 	const width = root.ctx.canvas.width - 80;
 	const height = 20;
 	const padding = 8;
-	const y = (height + padding * 2) * (index - scrollOffset);
+	// Calculate if we need to adjust for up arrow
+	const hasUpArrow = scrollOffset > 0;
+	const y =
+		(height + padding * 2) * (index - scrollOffset + (hasUpArrow ? 1 : 0));
 	return (
 		<Group
 			width={width}
