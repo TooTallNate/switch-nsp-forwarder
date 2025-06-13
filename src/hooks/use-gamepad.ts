@@ -2,7 +2,6 @@ import { Button } from "@nx.js/constants";
 import { type DependencyList, useCallback, useEffect } from "react";
 import type { ButtonName } from "../types";
 type Direction = Extract<ButtonName, "Up" | "Down" | "Left" | "Right">;
-
 interface CallbackConfig {
 	callback: () => void;
 	repeat: boolean;
@@ -139,6 +138,7 @@ class GamepadLoop {
 		this.queueLoop();
 	}
 
+	// Only checking left stick at the moment... TODO: add right stick
 	addStick(
 		cb: () => void,
 		direction: Direction,
@@ -224,9 +224,9 @@ export function useGamepadButton(
 	callback: () => void,
 	deps: DependencyList,
 	focused = true,
-	repeat = false,
-	initialDelay: number,
-	repeatDelay: number
+	repeat?: boolean,
+	initialDelay?: number,
+	repeatDelay?: number
 ) {
 	const cb = useCallback(callback, deps);
 
@@ -247,7 +247,7 @@ export function useJoystick(
 	callback: () => void,
 	deps: DependencyList,
 	focused = true,
-	repeat = false,
+	repeat: boolean,
 	initialDelay: number,
 	repeatDelay: number
 ) {
@@ -273,9 +273,9 @@ export function useDirection(
 	callback: () => void,
 	deps: DependencyList,
 	focused = true,
-	repeat = false,
-	initialDelay: number,
-	repeatDelay: number
+	repeat?: boolean,
+	initialDelay?: number,
+	repeatDelay?: number
 ) {
 	const cb = useCallback(callback, deps);
 
