@@ -13,8 +13,8 @@
     "build": "esbuild --bundle --sourcemap --sources-content=false --target=es2022 --format=esm --outdir=romfs --jsx=automatic --define:process.env.NODE_ENV=\\\"production\\\" src/main.tsx",
     "format": "biome format --write src",
     "lint": "biome lint",
-    "nro": "nxjs-nro",
-    "nsp": "nxjs-nsp",
+    "nro": "npm run build && nxjs-nro",
+    "nsp": "npm run build && nxjs-nsp",
     "typecheck": "tsc"
   },
   "author": {
