@@ -1,25 +1,29 @@
 import { Button } from "@nx.js/constants";
-import {
-	type DependencyList,
-	useCallback,
-	useEffect,
-	useState,
-	useRef,
-} from "react";
+import { type DependencyList, useCallback, useEffect } from "react";
 import type { ButtonName } from "../types";
 type Direction = Extract<ButtonName, "Up" | "Down" | "Left" | "Right">;
 
+interface CallbackConfig {
+	callback: () => void;
+	repeat: boolean;
+	initialDelay: number;
+	repeatDelay: number;
+	lastTriggerTime: number;
+	hasTriggered: boolean;
+}
+
 class GamepadLoop {
 	running = false;
-	callbacks = new Map<() => void, ButtonName>();
-	stickCallbacks = new Map<() => void, Direction>();
+	callbacks = new Map<CallbackConfig, ButtonName>();
+	stickCallbacks = new Map<CallbackConfig, Direction>();
 	stickDirection = {
 		Up: false,
 		Down: false,
 		Left: false,
 		Right: false,
 	} as Record<Direction, boolean>;
-	pressed: boolean[] = [];
+	buttonState: boolean[] = [];
+	lastFrameTime = 0;
 
 	constructor() {
 		navigator.virtualKeyboard.addEventListener(
@@ -32,6 +36,7 @@ class GamepadLoop {
 		if (this.running) return;
 		if (navigator.virtualKeyboard.boundingRect.height > 0) return;
 		this.running = true;
+		this.lastFrameTime = performance.now();
 		queueMicrotask(this.loop);
 	}
 
@@ -43,28 +48,133 @@ class GamepadLoop {
 		}
 	};
 
+	#handleCallback(
+		config: CallbackConfig,
+		wasPressed: boolean,
+		isPressed: boolean,
+		currentTime: number
+	) {
+		const timeSinceLastTrigger = currentTime - config.lastTriggerTime;
+
+		if (!wasPressed && isPressed) {
+			// First press - trigger immediately
+			config.callback();
+			config.hasTriggered = true;
+			config.lastTriggerTime = currentTime;
+		} else if (isPressed && config.repeat) {
+			// For repeats, check if we've waited long enough
+			const delay = config.hasTriggered
+				? config.repeatDelay
+				: config.initialDelay;
+			if (timeSinceLastTrigger >= delay) {
+				config.callback();
+				config.lastTriggerTime = currentTime;
+			}
+		} else if (!isPressed) {
+			config.hasTriggered = false;
+			config.lastTriggerTime = 0;
+		}
+	}
+
 	loop = () => {
-		if (this.callbacks.size === 0 || !this.running) return;
+		if (
+			(this.callbacks.size === 0 && this.stickCallbacks.size === 0) ||
+			!this.running
+		)
+			return;
 
 		const [gp] = navigator.getGamepads();
 		if (!gp) return;
 
-		for (const [cb, button] of this.callbacks) {
+		const currentTime = performance.now();
+
+		// Handle button callbacks
+		for (const [config, button] of this.callbacks) {
 			const buttonNum = Button[button];
-			const wasPressed = this.pressed[buttonNum];
+			const wasPressed = this.buttonState[buttonNum];
 			const isPressed = gp.buttons[buttonNum]?.pressed;
 
-			// possible issue where multiple CBs for the same button won't be called, only the first one.
 			if (!wasPressed && isPressed) {
-				this.pressed[buttonNum] = true;
-				cb();
+				this.buttonState[buttonNum] = true;
 			} else if (wasPressed && !isPressed) {
-				this.pressed[buttonNum] = false;
+				this.buttonState[buttonNum] = false;
 			}
+
+			this.#handleCallback(config, wasPressed, isPressed, currentTime);
 		}
 
+		const currentStickDirection = this.#getCurrentStickDirection(gp);
+
+		// Handle stick callbacks
+		for (const [config, direction] of this.stickCallbacks) {
+			const wasPressed = this.stickDirection[direction];
+			const isPressed = currentStickDirection[direction];
+			this.#handleCallback(config, wasPressed, isPressed, currentTime);
+		}
+
+		this.stickDirection = currentStickDirection;
+		requestAnimationFrame(this.loop);
+	};
+
+	add(
+		cb: () => void,
+		button: ButtonName,
+		repeat = false,
+		initialDelay = 800,
+		repeatDelay = 300
+	) {
+		const config: CallbackConfig = {
+			callback: cb,
+			repeat,
+			initialDelay,
+			repeatDelay,
+			lastTriggerTime: 0,
+			hasTriggered: false,
+		};
+		this.callbacks.set(config, button);
+		this.queueLoop();
+	}
+
+	addStick(
+		cb: () => void,
+		direction: Direction,
+		repeat = false,
+		initialDelay = 500,
+		repeatDelay = 100
+	) {
+		const config: CallbackConfig = {
+			callback: cb,
+			repeat,
+			initialDelay,
+			repeatDelay,
+			lastTriggerTime: 0,
+			hasTriggered: false,
+		};
+		this.stickCallbacks.set(config, direction);
+		this.queueLoop();
+	}
+
+	delete(cb: () => void) {
+		for (const [config] of this.callbacks) {
+			if (config.callback === cb) {
+				this.callbacks.delete(config);
+				break;
+			}
+		}
+		for (const [config] of this.stickCallbacks) {
+			if (config.callback === cb) {
+				this.stickCallbacks.delete(config);
+				break;
+			}
+		}
+		if (this.callbacks.size === 0 && this.stickCallbacks.size === 0) {
+			this.running = false;
+		}
+	}
+
+	#getCurrentStickDirection(gp: Gamepad) {
 		const deadzone = 0.2; // Add deadzone to prevent accidental triggers
-		const threshold = 0.7;
+		const threshold = 0.7; // threshold for the stick to be considered pressed
 
 		const [hAxis, vAxis] = gp.axes;
 
@@ -99,37 +209,7 @@ class GamepadLoop {
 				}
 			}
 		}
-
-		for (const [cb, direction] of this.stickCallbacks) {
-			const wasPressed = this.stickDirection[direction];
-			const isPressed = currentStickDirection[direction];
-
-			if (!wasPressed && isPressed) {
-				cb();
-			}
-		}
-		// batch update the stick directions
-		this.stickDirection = currentStickDirection;
-
-		requestAnimationFrame(this.loop);
-	};
-
-	add(cb: () => void, button: ButtonName) {
-		this.callbacks.set(cb, button);
-		this.queueLoop();
-	}
-
-	addStick(cb: () => void, direction: Direction) {
-		this.stickCallbacks.set(cb, direction);
-		this.queueLoop();
-	}
-
-	delete(cb: () => void) {
-		this.callbacks.delete(cb);
-		this.stickCallbacks.delete(cb);
-		if (this.callbacks.size === 0 && this.stickCallbacks.size === 0) {
-			this.running = false;
-		}
+		return currentStickDirection;
 	}
 }
 
@@ -139,7 +219,10 @@ export function useGamepadButton(
 	button: ButtonName,
 	callback: () => void,
 	deps: DependencyList,
-	focused = true
+	focused = true,
+	repeat = false,
+	initialDelay = 500,
+	repeatDelay = 100
 ) {
 	const cb = useCallback(callback, deps);
 
@@ -148,18 +231,21 @@ export function useGamepadButton(
 			gamepadLoop.delete(cb);
 			return;
 		}
-		gamepadLoop.add(cb, button);
+		gamepadLoop.add(cb, button, repeat, initialDelay, repeatDelay);
 		return () => {
 			gamepadLoop.delete(cb);
 		};
-	}, [focused, cb, button]);
+	}, [focused, cb, button, repeat, initialDelay, repeatDelay]);
 }
 
 export function useJoystick(
 	direction: Direction,
 	callback: () => void,
 	deps: DependencyList,
-	focused = true
+	focused = true,
+	repeat = false,
+	initialDelay = 500,
+	repeatDelay = 100
 ) {
 	const cb = useCallback(callback, deps);
 
@@ -168,19 +254,58 @@ export function useJoystick(
 			gamepadLoop.delete(cb);
 			return;
 		}
-		gamepadLoop.addStick(cb, direction);
+		gamepadLoop.addStick(cb, direction, repeat, initialDelay, repeatDelay);
 		return () => {
 			gamepadLoop.delete(cb);
 		};
-	}, [focused, cb, direction]);
+	}, [focused, cb, direction, repeat, initialDelay, repeatDelay]);
 }
 
+/**
+ * Listen for both dpad and stick directions together
+ */
 export function useDirection(
 	direction: Direction,
 	callback: () => void,
 	deps: DependencyList,
-	focused = true
+	focused = true,
+	repeat = false,
+	initialDelay = 500,
+	repeatDelay = 100
 ) {
-	useJoystick(direction, callback, deps, focused);
-	useGamepadButton(direction, callback, deps, focused);
+	const cb = useCallback(callback, deps);
+
+	useEffect(() => {
+		if (!focused) {
+			gamepadLoop.delete(cb);
+			return;
+		}
+
+		// Create separate configs for button and stick
+		const buttonConfig: CallbackConfig = {
+			callback: cb,
+			repeat,
+			initialDelay,
+			repeatDelay,
+			lastTriggerTime: 0,
+			hasTriggered: false,
+		};
+
+		const stickConfig: CallbackConfig = {
+			callback: cb,
+			repeat,
+			initialDelay,
+			repeatDelay,
+			lastTriggerTime: 0,
+			hasTriggered: false,
+		};
+
+		// Add both callbacks with their respective configs
+		gamepadLoop.add(cb, direction, repeat, initialDelay, repeatDelay);
+		gamepadLoop.addStick(cb, direction, repeat, initialDelay, repeatDelay);
+
+		return () => {
+			gamepadLoop.delete(cb);
+		};
+	}, [focused, cb, direction, repeat, initialDelay, repeatDelay]);
 }

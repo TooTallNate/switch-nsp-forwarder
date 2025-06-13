@@ -97,7 +97,8 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 			});
 		},
 		[numEntries, scrollOffset, itemsPerPage],
-		focused
+		focused,
+		true
 	);
 
 	useDirection(
@@ -112,7 +113,8 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 			});
 		},
 		[numEntries, scrollOffset, itemsPerPage],
-		focused
+		focused,
+		true
 	);
 
 	useEffect(() => {
