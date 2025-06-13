@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
-import { Group, Rect, Text, useRoot } from "react-tela";
-import { useGamepadButton, useDirection } from "../hooks/use-gamepad";
-import { isDirectory } from "../util";
+import { useCallback, useEffect, useState } from 'react';
+import { Group, Rect, Text, useRoot } from 'react-tela';
+import { useGamepadButton, useDirection } from '../hooks/use-gamepad';
+import { isDirectory } from '../util';
 
 interface Entry {
 	name: string;
@@ -14,7 +14,7 @@ export interface FilePickerProps {
 }
 
 export function FilePicker({ onSelect, onClose }: FilePickerProps) {
-	const [dir, setDir] = useState(new URL("sdmc:/"));
+	const [dir, setDir] = useState(new URL('sdmc:/'));
 	const [entries, setEntries] = useState<Entry[]>([]);
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const [scrollOffset, setScrollOffset] = useState(0);
@@ -27,18 +27,18 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 	const visibleHeight = root.ctx.canvas.height - 80;
 	const itemsPerPage = Math.floor(visibleHeight / (itemHeight + padding * 2));
 	const centeringPadding = Math.floor(
-		(visibleHeight % (itemHeight + padding * 2)) / 2
+		(visibleHeight % (itemHeight + padding * 2)) / 2,
 	);
 
 	// Calculate visible entries
 	const visibleEntries = entries.slice(
 		scrollOffset,
-		scrollOffset + itemsPerPage
+		scrollOffset + itemsPerPage,
 	);
 
 	const doSelect = useCallback(
 		(entry: Entry) => {
-			if (entry.name === ".." && dir.href.endsWith(":/")) {
+			if (entry.name === '..' && dir.href.endsWith(':/')) {
 				return onClose?.();
 			}
 
@@ -46,15 +46,13 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 			try {
 				selection = new URL(
 					entry.isDirectory ? `${entry.name}/` : entry.name,
-					dir
+					dir,
 				);
 			} catch (err) {
-				console.debug(
-					`Failed to parse URL from entry: ${entry} from ${dir}`
-				);
+				console.debug(`Failed to parse URL from entry: ${entry} from ${dir}`);
 				return;
 			}
-			console.debug("Selection:", selection.href);
+			console.debug('Selection:', selection.href);
 
 			if (entry.isDirectory) {
 				setDir(selection);
@@ -63,11 +61,11 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 				onSelect?.(selection);
 			}
 		},
-		[dir, onClose, onSelect]
+		[dir, onClose, onSelect],
 	);
 
 	useDirection(
-		"Up",
+		'Up',
 		() => {
 			setSelectedIndex((i) => {
 				const newIndex = Math.max(0, i - 1);
@@ -82,18 +80,18 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 		// this is a non-ideal behavior, but the UX isn't THAT bad despite it being a bug.
 		[numEntries, scrollOffset, itemsPerPage],
 		focused,
-		true
+		true,
 	);
 
 	useDirection(
-		"Down",
+		'Down',
 		() => {
 			setSelectedIndex((i) => {
 				const newIndex = Math.min(numEntries - 1, i + 1);
 				// If we're at the bottom of the visible area and there are items below
 				if (newIndex >= scrollOffset + itemsPerPage) {
 					setScrollOffset((offset) =>
-						Math.min(numEntries - itemsPerPage, offset + 1)
+						Math.min(numEntries - itemsPerPage, offset + 1),
 					);
 				}
 				return newIndex;
@@ -103,24 +101,24 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 		// this is a non-ideal behavior, but the UX isn't THAT bad despite it being a bug.
 		[numEntries, scrollOffset, itemsPerPage],
 		focused,
-		true
+		true,
 	);
 
 	useGamepadButton(
-		"A",
+		'A',
 		() => {
 			doSelect(entries[selectedIndex]);
 		},
 		[doSelect, entries, selectedIndex],
-		focused
+		focused,
 	);
 
 	// FIXME: exit the picker when we're at the root directory
 	useGamepadButton(
-		"B",
+		'B',
 		() => doSelect(entries[0]),
 		[doSelect, entries],
-		focused
+		focused,
 	);
 
 	useEffect(() => {
@@ -128,7 +126,7 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 		const entries: Entry[] = names
 			.map((name) => {
 				// Skip hidden files
-				if (name.startsWith(".")) return;
+				if (name.startsWith('.')) return;
 
 				try {
 					const stat = Switch.statSync(new URL(name, dir));
@@ -137,18 +135,16 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 						isDirectory: stat ? isDirectory(stat.mode) : false,
 					};
 				} catch (err) {
-					console.debug(
-						`Failed to stat "${name}" in "${dir}": ${err}`
-					);
+					console.debug(`Failed to stat "${name}" in "${dir}": ${err}`);
 				}
 			})
-			.filter((v) => typeof v !== "undefined");
+			.filter((v) => typeof v !== 'undefined');
 		setEntries(
-			[{ name: "..", isDirectory: true }, ...entries].sort((a, b) => {
+			[{ name: '..', isDirectory: true }, ...entries].sort((a, b) => {
 				if (a.isDirectory && !b.isDirectory) return -1;
 				if (b.isDirectory && !a.isDirectory) return 1;
 				return a.name.localeCompare(b.name);
-			})
+			}),
 		);
 		// Reset when changing directories
 		setSelectedIndex(0);
@@ -160,13 +156,13 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 			<Rect
 				width={root.ctx.canvas.width}
 				height={root.ctx.canvas.height}
-				fill="rgba(0, 0, 0, 0.5)"
+				fill='rgba(0, 0, 0, 0.5)'
 			/>
 			<Group width={visibleWidth} height={visibleHeight} x={40} y={40}>
 				<Rect
 					width={visibleWidth}
 					height={visibleHeight}
-					fill="black"
+					fill='black'
 					lineWidth={4}
 				/>
 				<Group
@@ -194,7 +190,7 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 				<Rect
 					width={visibleWidth}
 					height={visibleHeight}
-					stroke="white"
+					stroke='white'
 					lineWidth={4}
 				/>
 			</Group>
@@ -224,11 +220,10 @@ function Scrollbar({
 	// Calculate scrollbar dimensions
 	const scrollbarWidth = 8;
 	const scrollbarHeight = Math.floor(
-		Math.max((height * itemsPerPage) / numEntries, height * 0.1)
+		Math.max((height * itemsPerPage) / numEntries, height * 0.1),
 	);
 	const scrollbarY = Math.round(
-		(height - scrollbarHeight) *
-			(scrollOffset / (numEntries - itemsPerPage))
+		(height - scrollbarHeight) * (scrollOffset / (numEntries - itemsPerPage)),
 	);
 	return (
 		<Rect
@@ -236,7 +231,7 @@ function Scrollbar({
 			height={scrollbarHeight}
 			x={x - scrollbarWidth - padding}
 			y={scrollbarY}
-			fill="rgba(255, 255, 255, 0.5)"
+			fill='rgba(255, 255, 255, 0.5)'
 		/>
 	);
 }
@@ -258,18 +253,18 @@ function FilePickerItem({
 	return (
 		<Group width={width} height={height + padding * 2} x={0} y={y}>
 			{selected && (
-				<Rect width={width} height={height + padding * 2} fill="blue" />
+				<Rect width={width} height={height + padding * 2} fill='blue' />
 			)}
 			<Text
-				fill="white"
-				fontFamily="system-icons"
+				fill='white'
+				fontFamily='system-icons'
 				fontSize={height}
 				x={padding}
 				y={padding}
 			>
-				{entry.isDirectory ? "" : ""}
+				{entry.isDirectory ? '' : ''}
 			</Text>
-			<Text fill="white" fontSize={height} x={padding + 28} y={padding}>
+			<Text fill='white' fontSize={height} x={padding + 28} y={padding}>
 				{entry.name}
 			</Text>
 		</Group>

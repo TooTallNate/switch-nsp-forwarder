@@ -1,7 +1,7 @@
-import { Button } from "@nx.js/constants";
-import { type DependencyList, useCallback, useEffect } from "react";
-import type { ButtonName } from "../types";
-type Direction = Extract<ButtonName, "Up" | "Down" | "Left" | "Right">;
+import { Button } from '@nx.js/constants';
+import { type DependencyList, useCallback, useEffect } from 'react';
+import type { ButtonName } from '../types';
+type Direction = Extract<ButtonName, 'Up' | 'Down' | 'Left' | 'Right'>;
 interface CallbackConfig {
 	callback: () => void;
 	repeat: boolean;
@@ -29,8 +29,8 @@ class GamepadLoop {
 
 	constructor() {
 		navigator.virtualKeyboard.addEventListener(
-			"geometrychange",
-			this.#onVirtualKeyboardGeometryChange
+			'geometrychange',
+			this.#onVirtualKeyboardGeometryChange,
 		);
 	}
 
@@ -54,7 +54,7 @@ class GamepadLoop {
 		config: CallbackConfig,
 		wasPressed: boolean,
 		isPressed: boolean,
-		currentTime: number
+		currentTime: number,
 	) {
 		const timeSinceLastTrigger = currentTime - config.lastTriggerTime;
 
@@ -124,7 +124,7 @@ class GamepadLoop {
 		button: ButtonName,
 		repeat = false,
 		initialDelay = defaultInitialDelay,
-		repeatDelay = defaultRepeatDelay
+		repeatDelay = defaultRepeatDelay,
 	) {
 		const config: CallbackConfig = {
 			callback: cb,
@@ -144,7 +144,7 @@ class GamepadLoop {
 		direction: Direction,
 		repeat = false,
 		initialDelay = defaultInitialDelay,
-		repeatDelay = defaultRepeatDelay
+		repeatDelay = defaultRepeatDelay,
 	) {
 		const config: CallbackConfig = {
 			callback: cb,
@@ -192,7 +192,7 @@ class GamepadLoop {
 		// Only set one direction based on which axis has the largest magnitude
 		if (Math.abs(hAxis) > deadzone || Math.abs(vAxis) > deadzone) {
 			if (Math.abs(hAxis) > Math.abs(vAxis)) {
-				const direction = hAxis > 0 ? "Right" : "Left";
+				const direction = hAxis > 0 ? 'Right' : 'Left';
 				const wasPressed = this.stickDirection[direction];
 				if (!wasPressed && Math.abs(hAxis) > threshold) {
 					currentStickDirection[direction] = true;
@@ -202,7 +202,7 @@ class GamepadLoop {
 					currentStickDirection[direction] = wasPressed;
 				}
 			} else {
-				const direction = vAxis > 0 ? "Down" : "Up";
+				const direction = vAxis > 0 ? 'Down' : 'Up';
 				const wasPressed = this.stickDirection[direction];
 				if (!wasPressed && Math.abs(vAxis) > threshold) {
 					currentStickDirection[direction] = true;
@@ -226,7 +226,7 @@ export function useGamepadButton(
 	focused = true,
 	repeat?: boolean,
 	initialDelay?: number,
-	repeatDelay?: number
+	repeatDelay?: number,
 ) {
 	const cb = useCallback(callback, deps);
 
@@ -247,9 +247,9 @@ export function useJoystick(
 	callback: () => void,
 	deps: DependencyList,
 	focused = true,
-	repeat: boolean,
-	initialDelay: number,
-	repeatDelay: number
+	repeat?: boolean,
+	initialDelay?: number,
+	repeatDelay?: number,
 ) {
 	const cb = useCallback(callback, deps);
 
@@ -275,7 +275,7 @@ export function useDirection(
 	focused = true,
 	repeat?: boolean,
 	initialDelay?: number,
-	repeatDelay?: number
+	repeatDelay?: number,
 ) {
 	const cb = useCallback(callback, deps);
 
