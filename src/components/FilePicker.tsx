@@ -23,25 +23,17 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 	const numEntries = entries.length;
 	const itemHeight = 20;
 	const padding = 8;
+	const visibleWidth = root.ctx.canvas.width - 80;
 	const visibleHeight = root.ctx.canvas.height - 80;
 	const itemsPerPage = Math.floor(visibleHeight / (itemHeight + padding * 2));
 	const centeringPadding = Math.floor(
 		(visibleHeight % (itemHeight + padding * 2)) / 2
 	);
 
-	// Calculate if we have items above
-	const hasItemsAbove = scrollOffset > 0;
-	// Calculate if we have items below
-	const hasItemsBelow =
-		scrollOffset + itemsPerPage + (hasItemsAbove ? 1 : 0) < numEntries;
-
 	// Calculate visible entries
 	const visibleEntries = entries.slice(
 		scrollOffset,
-		scrollOffset +
-			itemsPerPage -
-			(hasItemsAbove ? 1 : 0) -
-			(hasItemsBelow ? 1 : 0)
+		scrollOffset + itemsPerPage
 	);
 
 	const doSelect = useCallback(
@@ -80,13 +72,15 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 			setSelectedIndex((i) => {
 				const newIndex = Math.max(0, i - 1);
 				// If we're at the top of the visible area and there are items above
-				if (newIndex === scrollOffset && scrollOffset > 0) {
-					setScrollOffset(Math.max(0, scrollOffset - 1));
+				if (newIndex < scrollOffset && scrollOffset > 0) {
+					setScrollOffset(newIndex);
 				}
 				return newIndex;
 			});
 		},
-		[scrollOffset],
+		// scrollOffset is necessary to work right, but causes a shortcut in the delay logic.
+		// this is a non-ideal behavior, but the UX isn't THAT bad despite it being a bug.
+		[numEntries, scrollOffset, itemsPerPage],
 		focused,
 		true
 	);
@@ -97,18 +91,17 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 			setSelectedIndex((i) => {
 				const newIndex = Math.min(numEntries - 1, i + 1);
 				// If we're at the bottom of the visible area and there are items below
-				if (
-					newIndex >= scrollOffset + visibleEntries.length &&
-					scrollOffset + visibleEntries.length < numEntries
-				) {
-					setScrollOffset(
-						Math.min(numEntries - itemsPerPage, scrollOffset + 1)
+				if (newIndex >= scrollOffset + itemsPerPage) {
+					setScrollOffset((offset) =>
+						Math.min(numEntries - itemsPerPage, offset + 1)
 					);
 				}
 				return newIndex;
 			});
 		},
-		[numEntries, scrollOffset, visibleEntries.length],
+		// scrollOffset is necessary to work right, but causes a shortcut in the delay logic.
+		// this is a non-ideal behavior, but the UX isn't THAT bad despite it being a bug.
+		[numEntries, scrollOffset, itemsPerPage],
 		focused,
 		true
 	);
@@ -116,10 +109,9 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 	useGamepadButton(
 		"A",
 		() => {
-			const adjustedIndex = selectedIndex - (scrollOffset > 0 ? 1 : 0);
-			doSelect(entries[adjustedIndex]);
+			doSelect(entries[selectedIndex]);
 		},
-		[doSelect, entries, selectedIndex, scrollOffset],
+		[doSelect, entries, selectedIndex],
 		focused
 	);
 
@@ -158,6 +150,9 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 				return a.name.localeCompare(b.name);
 			})
 		);
+		// Reset when changing directories
+		setSelectedIndex(0);
+		setScrollOffset(0);
 	}, [dir]);
 
 	return (
@@ -167,54 +162,38 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 				height={root.ctx.canvas.height}
 				fill="rgba(0, 0, 0, 0.5)"
 			/>
-			<Group
-				width={root.ctx.canvas.width - 80}
-				height={root.ctx.canvas.height - 80}
-				x={40}
-				y={40}
-			>
+			<Group width={visibleWidth} height={visibleHeight} x={40} y={40}>
 				<Rect
-					width={root.ctx.canvas.width - 80}
-					height={root.ctx.canvas.height - 80}
+					width={visibleWidth}
+					height={visibleHeight}
 					fill="black"
 					lineWidth={4}
 				/>
 				<Group
-					width={root.ctx.canvas.width - 80}
-					height={root.ctx.canvas.height - 80}
+					width={visibleWidth}
+					height={visibleHeight}
 					y={centeringPadding}
 					x={0}
 				>
 					{visibleEntries.map((entry, i) => (
-						<>
-							{i === 0 && hasItemsAbove && (
-								<Arrow direction="Up" index={0} />
-							)}
-							<FilePickerItem
-								key={entry.name}
-								entry={entry}
-								index={scrollOffset + i}
-								selected={
-									scrollOffset +
-										i +
-										(hasItemsAbove ? 1 : 0) ===
-									selectedIndex
-								}
-								scrollOffset={scrollOffset}
-							/>
-							{i === visibleEntries.length - 1 &&
-								hasItemsBelow && (
-									<Arrow
-										direction="Down"
-										index={itemsPerPage - 1}
-									/>
-								)}
-						</>
+						<FilePickerItem
+							key={entry.name}
+							entry={entry}
+							index={i}
+							selected={scrollOffset + i === selectedIndex}
+						/>
 					))}
 				</Group>
+				<Scrollbar
+					height={visibleHeight}
+					x={visibleWidth}
+					numEntries={numEntries}
+					itemsPerPage={itemsPerPage}
+					scrollOffset={scrollOffset}
+				/>
 				<Rect
-					width={root.ctx.canvas.width - 80}
-					height={root.ctx.canvas.height - 80}
+					width={visibleWidth}
+					height={visibleHeight}
 					stroke="white"
 					lineWidth={4}
 				/>
@@ -223,34 +202,42 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 	);
 }
 
-function Arrow({
-	direction,
-	index,
-}: {
-	direction: "Up" | "Down";
-	index: number;
-}) {
-	const width = useRoot().ctx.canvas.width - 80;
-	const height = 20;
-	const padding = 8;
-	const y = (height + padding * 2) * index;
+interface ScrollbarProps {
+	height: number;
+	x: number;
+	numEntries: number;
+	itemsPerPage: number;
+	scrollOffset: number;
+	padding?: number;
+}
+
+function Scrollbar({
+	height,
+	x,
+	numEntries,
+	itemsPerPage,
+	scrollOffset,
+	padding = 8,
+}: ScrollbarProps) {
+	if (numEntries <= itemsPerPage) return null;
+
+	// Calculate scrollbar dimensions
+	const scrollbarWidth = 8;
+	const scrollbarHeight = Math.floor(
+		Math.max((height * itemsPerPage) / numEntries, height * 0.1)
+	);
+	const scrollbarY = Math.round(
+		(height - scrollbarHeight) *
+			(scrollOffset / (numEntries - itemsPerPage))
+	);
 	return (
-		<Group
-			width={width}
-			height={height + padding * 2}
-			x={padding * 2}
-			y={y}
-		>
-			<Text
-				fill="white"
-				fontSize={height}
-				x={padding}
-				y={padding}
-				textAlign="center"
-			>
-				{direction === "Up" ? "▲" : "▼"}
-			</Text>
-		</Group>
+		<Rect
+			width={scrollbarWidth}
+			height={scrollbarHeight}
+			x={x - scrollbarWidth - padding}
+			y={scrollbarY}
+			fill="rgba(255, 255, 255, 0.5)"
+		/>
 	);
 }
 
@@ -258,31 +245,18 @@ function FilePickerItem({
 	entry,
 	index,
 	selected,
-	scrollOffset,
-	onTouchEnd,
 }: {
 	entry: Entry;
 	index: number;
 	selected: boolean;
-	onTouchEnd?: () => void;
-	scrollOffset: number;
 }) {
 	const root = useRoot();
 	const width = root.ctx.canvas.width - 80;
 	const height = 20;
 	const padding = 8;
-	// Calculate if we need to adjust for up arrow
-	const hasUpArrow = scrollOffset > 0;
-	const y =
-		(height + padding * 2) * (index - scrollOffset + (hasUpArrow ? 1 : 0));
+	const y = (height + padding * 2) * index;
 	return (
-		<Group
-			width={width}
-			height={height + padding * 2}
-			x={0}
-			y={y}
-			onTouchEnd={onTouchEnd}
-		>
+		<Group width={width} height={height + padding * 2} x={0} y={y}>
 			{selected && (
 				<Rect width={width} height={height + padding * 2} fill="blue" />
 			)}
