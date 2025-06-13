@@ -1,35 +1,35 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Text, useRoot } from 'react-tela';
-import { Footer, FooterItem } from '../components/Footer';
-import { useGamepadButton } from '../hooks/use-gamepad';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Text, useRoot } from "react-tela";
+import { Footer, FooterItem } from "../components/Footer";
+import { useGamepadButton } from "../hooks/use-gamepad";
 import {
 	NROForwarderIcon,
 	RetroArchForwarderIcon,
-} from '../components/ForwarderIcon';
+} from "../components/ForwarderIcon";
 
-const NEXT_ROUTES = ['/select', '/select-retroarch'];
+const NEXT_ROUTES = ["/select", "/select-retroarch"];
 
 export function SelectForwarderType() {
 	const root = useRoot();
 	const navigate = useNavigate();
 	const [selectedIndex, setSelectedIndex] = useState(0);
 
-	useGamepadButton('A', () => navigate(NEXT_ROUTES[selectedIndex]), [
+	useGamepadButton("A", () => navigate(NEXT_ROUTES[selectedIndex]), [
 		navigate,
 		selectedIndex,
 	]);
 
-	useGamepadButton('Left', () => setSelectedIndex(0), []);
+	useGamepadButton("Left", () => setSelectedIndex(0), []);
 
-	useGamepadButton('Right', () => setSelectedIndex(1), []);
+	useGamepadButton("Right", () => setSelectedIndex(1), []);
 
 	return (
 		<>
 			<Text
-				fill='white'
+				fill="white"
 				fontSize={32}
-				textAlign='center'
+				textAlign="center"
 				x={root.ctx.canvas.width / 2}
 				y={100}
 			>
@@ -48,10 +48,10 @@ export function SelectForwarderType() {
 				onTouchEnd={() => navigate(NEXT_ROUTES[1])}
 			/>
 			<Footer>
-				<FooterItem button='Plus' x={root.ctx.canvas.width - 260}>
+				<FooterItem button="Plus" x={root.ctx.canvas.width - 260}>
 					Exit
 				</FooterItem>
-				<FooterItem button='A' x={root.ctx.canvas.width - 140}>
+				<FooterItem button="A" x={root.ctx.canvas.width - 140}>
 					Select
 				</FooterItem>
 			</Footer>
