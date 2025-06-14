@@ -15,6 +15,16 @@ export function Select() {
 
 	const perRow = 5;
 	const focused = !filePickerShowing;
+	const tileHeight = root.ctx.canvas.width / perRow;
+	const containerHeight = root.ctx.canvas.height - 114;
+
+	// Calculate scroll position to keep selected row in view
+	// Generally always in the middle unless the top row is selected
+	const selectedRow = Math.floor(selectedIndex / perRow);
+	const scrollOffset = Math.max(
+		0,
+		selectedRow * tileHeight - (containerHeight - tileHeight) / 2,
+	);
 
 	const goToEdit = useCallback(
 		(appInfo: AppInfo) => {
@@ -106,6 +116,7 @@ export function Select() {
 						index={i}
 						onTouchEnd={() => goToEdit(app)}
 						selected={selectedIndex === i}
+						scrollOffset={scrollOffset}
 					/>
 				))}
 			</Group>
