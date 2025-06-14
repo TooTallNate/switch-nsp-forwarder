@@ -5,7 +5,7 @@ import { type AppInfo, apps, pathToAppInfo } from '../apps';
 import { AppTile } from '../components/AppTile';
 import { Footer, FooterItem } from '../components/Footer';
 import { FilePicker } from '../components/FilePicker';
-import { useGamepadButton } from '../hooks/use-gamepad';
+import { useDirection, useGamepadButton } from '../hooks/use-gamepad';
 
 export function Select() {
 	const root = useRoot();
@@ -41,7 +41,7 @@ export function Select() {
 		focused,
 	);
 
-	useGamepadButton(
+	useDirection(
 		'Left',
 		() => {
 			setSelectedIndex((i) => {
@@ -53,7 +53,7 @@ export function Select() {
 		focused,
 	);
 
-	useGamepadButton(
+	useDirection(
 		'Right',
 		() => {
 			setSelectedIndex((i) => {
@@ -66,7 +66,7 @@ export function Select() {
 		focused,
 	);
 
-	useGamepadButton(
+	useDirection(
 		'Up',
 		() => {
 			setSelectedIndex((i) => Math.max(0, i - perRow));
@@ -75,7 +75,7 @@ export function Select() {
 		focused,
 	);
 
-	useGamepadButton(
+	useDirection(
 		'Down',
 		() => {
 			setSelectedIndex((i) => Math.min(apps.length - 1, i + perRow));
@@ -87,7 +87,7 @@ export function Select() {
 	return (
 		<>
 			<Text fill='white' fontSize={24}>
-				Select an app to create a forwader for:
+				Select an app to create a forwarder for:
 			</Text>
 			<Text fill='white' fontSize={24} x={500}>
 				{apps[selectedIndex].path}
