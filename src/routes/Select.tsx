@@ -6,6 +6,7 @@ import { AppTile } from '../components/AppTile';
 import { Footer, FooterItem } from '../components/Footer';
 import { FilePicker } from '../components/FilePicker';
 import { useDirection, useGamepadButton } from '../hooks/use-gamepad';
+import { Scrollbar } from '../components/Scrollbar';
 
 export function Select() {
 	const root = useRoot();
@@ -15,16 +16,13 @@ export function Select() {
 
 	const perRow = 5;
 	const focused = !filePickerShowing;
-	const tileHeight = root.ctx.canvas.width / perRow;
 	const containerHeight = root.ctx.canvas.height - 114;
+	const totalRows = Math.ceil(apps.length / perRow);
 
 	// Calculate scroll position to keep selected row in view
 	// Generally always in the middle unless the top row is selected
 	const selectedRow = Math.floor(selectedIndex / perRow);
-	const scrollOffset = Math.max(
-		0,
-		selectedRow * tileHeight - (containerHeight - tileHeight) / 2,
-	);
+	const scrollOffset = Math.max(0, selectedRow);
 
 	const goToEdit = useCallback(
 		(appInfo: AppInfo) => {
@@ -119,6 +117,13 @@ export function Select() {
 						scrollOffset={scrollOffset}
 					/>
 				))}
+				<Scrollbar
+					height={containerHeight}
+					x={root.ctx.canvas.width}
+					numEntries={totalRows}
+					itemsPerPage={1}
+					scrollOffset={scrollOffset}
+				/>
 			</Group>
 
 			<Footer>
