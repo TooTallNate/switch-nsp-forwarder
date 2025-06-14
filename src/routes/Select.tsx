@@ -5,7 +5,8 @@ import { type AppInfo, apps, pathToAppInfo } from '../apps';
 import { AppTile } from '../components/AppTile';
 import { Footer, FooterItem } from '../components/Footer';
 import { FilePicker } from '../components/FilePicker';
-import { useGamepadButton } from '../hooks/use-gamepad';
+import { useDirection, useGamepadButton } from '../hooks/use-gamepad';
+import { Scrollbar } from '../components/Scrollbar';
 
 export function Select() {
 	const root = useRoot();
@@ -15,6 +16,13 @@ export function Select() {
 
 	const perRow = 5;
 	const focused = !filePickerShowing;
+	const containerHeight = root.ctx.canvas.height - 114;
+	const totalRows = Math.ceil(apps.length / perRow);
+
+	// Calculate scroll position to keep selected row in view
+	// Generally always in the middle unless the top row is selected
+	const selectedRow = Math.floor(selectedIndex / perRow);
+	const scrollOffset = Math.max(0, selectedRow);
 
 	const goToEdit = useCallback(
 		(appInfo: AppInfo) => {
@@ -41,7 +49,7 @@ export function Select() {
 		focused,
 	);
 
-	useGamepadButton(
+	useDirection(
 		'Left',
 		() => {
 			setSelectedIndex((i) => {
@@ -53,7 +61,7 @@ export function Select() {
 		focused,
 	);
 
-	useGamepadButton(
+	useDirection(
 		'Right',
 		() => {
 			setSelectedIndex((i) => {
@@ -66,7 +74,7 @@ export function Select() {
 		focused,
 	);
 
-	useGamepadButton(
+	useDirection(
 		'Up',
 		() => {
 			setSelectedIndex((i) => Math.max(0, i - perRow));
@@ -75,7 +83,7 @@ export function Select() {
 		focused,
 	);
 
-	useGamepadButton(
+	useDirection(
 		'Down',
 		() => {
 			setSelectedIndex((i) => Math.min(apps.length - 1, i + perRow));
@@ -87,7 +95,7 @@ export function Select() {
 	return (
 		<>
 			<Text fill='white' fontSize={24}>
-				Select an app to create a forwader for:
+				Select an app to create a forwarder for:
 			</Text>
 			<Text fill='white' fontSize={24} x={500}>
 				{apps[selectedIndex].path}
@@ -106,8 +114,16 @@ export function Select() {
 						index={i}
 						onTouchEnd={() => goToEdit(app)}
 						selected={selectedIndex === i}
+						scrollOffset={scrollOffset}
 					/>
 				))}
+				<Scrollbar
+					height={containerHeight}
+					x={root.ctx.canvas.width}
+					numEntries={totalRows}
+					itemsPerPage={1}
+					scrollOffset={scrollOffset}
+				/>
 			</Group>
 
 			<Footer>
