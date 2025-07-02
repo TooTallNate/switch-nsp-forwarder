@@ -65,15 +65,15 @@ export const Modal = ({width=770, height=290, title, body, buttons} : ModalProps
 
             const hasLeftDivider = index > 0;
             const hasRightDivider = index < arr.length - 1;
-            const selectionX = hasLeftDivider ? x - dividerWidth : x;
+            const selectionX = hasLeftDivider ? x - dividerWidth/2 : x;
             const selectionWidth = buttonWidth + 
-              (hasLeftDivider ? dividerWidth : 0) + 
-              (hasRightDivider ? dividerWidth : 0);
+              (hasLeftDivider ? dividerWidth/2 : 0) + 
+              (hasRightDivider ? dividerWidth/2 : 0);
 
             return (
               <>
                 {button.selected && (
-                  <Rect x={selectionX} y={0} width={selectionWidth} height={74} stroke="red" lineWidth={4} />
+                  <Rect x={x} y={0} width={buttonWidth} height={74} fill="rgba(255,255,255,0.15)" />
                 )}
                 <FooterItem button={button.button} x={x + buttonWidth/2 - 30}>{button.text}</FooterItem>
                 {index < arr.length - 1 && (
@@ -83,6 +83,9 @@ export const Modal = ({width=770, height=290, title, body, buttons} : ModalProps
                     x={x + buttonWidth}
                     fill='white' 
                   />
+                )}
+                {button.selected && (
+                  <Rect x={selectionX} y={0} width={selectionWidth} height={74} stroke="white" lineWidth={dividerWidth*2} />
                 )}
               </>
             )
