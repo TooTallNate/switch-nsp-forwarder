@@ -1,10 +1,11 @@
-import { useState, useCallback } from 'react';
-import { Group, Rect, Text, useRoot } from 'react-tela';
+import { useState, useCallback, useEffect } from 'react';
+import { Group, Rect} from 'react-tela';
 import { AppIcon } from './AppIcon';
 import { FilePicker } from './FilePicker';
-import { FooterItem } from './Footer';
 import { useGamepadButton } from '../hooks/use-gamepad';
 import { AppIconFromImageUrl } from '../utils/util';
+import { Shade } from './Shade';
+import { Modal } from './Modal';
 
 export interface AppIconSelectorProps {
   icon: ArrayBuffer | undefined;
@@ -13,26 +14,49 @@ export interface AppIconSelectorProps {
   y: number;
   /** Returns a new iconBuffer when selecting a supported image */
   onChange: (icon: ArrayBuffer) => void;
+  onStealFocus: (isFocus: boolean) => void; 
   onClick?: () => void;
 }
 
-export function AppIconSelector({ icon, focused, x, y, onChange, onClick }: AppIconSelectorProps) {
+export function AppIconSelector({ icon, focused, x, y, onChange, onClick, onStealFocus }: AppIconSelectorProps) {
   const [filePickerOpen, setFilePickerOpen] = useState(false);
   const [errorModal, setErrorModal] = useState<string | null>(null);
-  const root = useRoot();
+  const selectedStrokeWidth = 4;
+
+  useEffect(()=>{
+    onStealFocus(filePickerOpen || (errorModal?.length ?? 0) > 0)
+  }, [onStealFocus, filePickerOpen, errorModal])
 
   useGamepadButton(
     'A',
     () => {
-      if (focused && !filePickerOpen && !errorModal) {
+      if (!filePickerOpen && !errorModal) {
         setFilePickerOpen(true);
       }
+      else if (errorModal) {
+        setErrorModal(null)
+      }
     },
-    [focused, errorModal],
-    true
+    [filePickerOpen, errorModal],
+    focused
+  );
+
+  useGamepadButton(
+    'X',
+    () => {
+      if (!errorModal) {
+        setErrorModal("Testing The Error Modal.\nThis is a multi-line message");
+      }
+      else{
+        setErrorModal(null);
+      }
+    },
+    [filePickerOpen, errorModal],
+    focused
   );
 
   const handleFileSelect = useCallback(async (url: URL) => {
+    console.log("Selected: ", url)
     try {
       const iconBuf = await AppIconFromImageUrl(url);
       onChange(iconBuf);
@@ -44,20 +68,20 @@ export function AppIconSelector({ icon, focused, x, y, onChange, onClick }: AppI
 
   return (
     <>
-      <Group x={x} y={y} width={260} height={260} onTouchEnd={onClick}>
+      <Group x={x} y={y} width={256+selectedStrokeWidth} height={256+selectedStrokeWidth} onTouchEnd={onClick}>
         <AppIcon icon={icon} width={256} height={256} x={2} y={2}/>
         <Rect
           width={focused ? 260 : 256}
           height={focused ? 260 : 256}
           stroke={focused ? '#00ffca' : 'rgba(255, 255, 255, 0.5)'}
-          lineWidth={focused ? 4 : 2}
-          x={focused ? 0 : 2}
-          y={focused ? 0 : 2}
+          lineWidth={focused ? selectedStrokeWidth : selectedStrokeWidth/2}
+          x={focused ? 0 : selectedStrokeWidth/2}
+          y={focused ? 0 : selectedStrokeWidth/2}
         />
       </Group>
       {filePickerOpen && (
         <>
-          <Rect width={root.ctx.canvas.width} height={root.ctx.canvas.height} fill='rgba(0,0,0,0.5)' />
+          <Shade />
           <FilePicker
             onSelect={handleFileSelect}
             onClose={() => setFilePickerOpen(false)}
@@ -65,11 +89,14 @@ export function AppIconSelector({ icon, focused, x, y, onChange, onClick }: AppI
         </>
       )}
       {errorModal && (
-        <Group width={400} height={160} x={x + 128 - 200} y={y + 128 - 80}>
-          <Rect width={400} height={160} fill='black' stroke='white' lineWidth={4} />
-          <Text fill='white' fontSize={22} x={20} y={40}>{errorModal}</Text>
-          <FooterItem button='A' x={170}>OK</FooterItem>
-        </Group>
+        <Modal
+          title="ERROR"
+          body={errorModal}
+          buttons={[
+            {button: "A", text:"OK"},
+            {button: "B", text: "Cancel", selected: true}
+          ]}
+        />
       )}
     </>
   );

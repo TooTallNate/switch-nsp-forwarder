@@ -38,6 +38,7 @@ export function Edit() {
 	const [icon, setIcon] = useState<ArrayBuffer | undefined>(initialState.icon);
 	const [focusedIndex, setFocusedIndex] = useState(-1);
 	const [iconSelected, setIconSelected] = useState(false);
+	const [iconPickerIsOpen, setFilePickerIsOpen] = useState(false);
 
 	const fields = [
 		{ name: 'Title ID', value: id, onChange: setId, description: '' },
@@ -56,6 +57,7 @@ export function Edit() {
 	}
 	const fieldsLength = fields.length;
 	const keyboardShown = navigator.virtualKeyboard.boundingRect.height > 0;
+	const hasFocus = !keyboardShown && !iconPickerIsOpen;
 
 	const goToGenerate = useCallback(
 		(install: boolean) => {
@@ -89,14 +91,14 @@ export function Edit() {
 		'X',
 		() => goToGenerate(true),
 		[goToGenerate],
-		!keyboardShown,
+		hasFocus,
 	);
 
 	useGamepadButton(
 		'Y',
 		() => goToGenerate(false),
 		[goToGenerate],
-		!keyboardShown,
+		hasFocus,
 	);
 
 	useGamepadButton(
@@ -106,7 +108,7 @@ export function Edit() {
 			navigate(-1);
 		},
 		[navigate],
-		!keyboardShown,
+		hasFocus,
 	);
 
 	useDirection(
@@ -117,7 +119,7 @@ export function Edit() {
 			}
 		},
 		[iconSelected],
-		!keyboardShown,
+		hasFocus,
 	);
 
 	useDirection(
@@ -128,7 +130,7 @@ export function Edit() {
 			}
 		},
 		[iconSelected, fieldsLength],
-		!keyboardShown,
+		hasFocus,
 	);
 
 	useDirection(
@@ -140,7 +142,7 @@ export function Edit() {
 			}
 		},
 		[iconSelected],
-		!keyboardShown,
+		hasFocus,
 	);
 
 	useDirection(
@@ -149,13 +151,13 @@ export function Edit() {
 			setIconSelected(true);
 		},
 		[],
-		!keyboardShown,
+		hasFocus,
 	);
 
 	return (
 		<>
 			<Text fill='white' fontSize={32} x={4} y={8}>
-				Edit configuration for your forwarder:
+				Edit configuration for your forwarder: {hasFocus.toString()}
 			</Text>
 
 			{fields.map(({ name, value, onChange }, i) => (
@@ -205,6 +207,7 @@ export function Edit() {
 				focused={iconSelected}
 				x={root.ctx.canvas.width - 320}
 				y={64}
+				onStealFocus={(isFocus:boolean) => setFilePickerIsOpen(isFocus)}
 				onChange={setIcon}
 				onClick={() => setIconSelected(true)}
 			/>
