@@ -1,4 +1,4 @@
-import { isDirectory } from './util';
+import { isDirectory } from './utils/util';
 
 export interface AppInfo {
 	path: string;
@@ -9,7 +9,7 @@ export interface AppInfo {
 	icon: ArrayBuffer | undefined;
 }
 
-function* nroIterator(
+export function* nroIterator(
 	dir: string | URL,
 	recursive = true,
 ): IteratorObject<URL, void> {
