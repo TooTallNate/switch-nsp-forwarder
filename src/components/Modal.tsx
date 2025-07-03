@@ -1,7 +1,7 @@
 import { Group, Rect, Text, useRoot } from 'react-tela';
 import { FooterItem } from './Footer';
 import { Shade } from './Shade';
-import { ButtonName } from '../types';
+import type { ButtonName } from '../types';
 
 export type ModalButton = {
 	text: string;
@@ -59,13 +59,14 @@ export const Modal = ({
 				)}
 				<Group
 					x={0}
-					y={(!!title ? 80 : 40) + bodyHeight / 2}
+					y={(title ? 80 : 40) + bodyHeight / 2}
 					width={width}
 					height={bodyHeight}
 				>
 					{rows.map((row, i) => {
 						return (
 							<Text
+								key={row}
 								fill='white'
 								fontSize={22}
 								x={width / 2}
@@ -105,7 +106,11 @@ export const Modal = ({
 										fill='rgba(255,255,255,0.15)'
 									/>
 								)}
-								<FooterItem button={button.button} x={x + buttonWidth / 2 - 30}>
+								<FooterItem
+									key={`${button.button}${button.text}`}
+									button={button.button}
+									x={x + buttonWidth / 2 - 30}
+								>
 									{button.text}
 								</FooterItem>
 								{index < arr.length - 1 && (

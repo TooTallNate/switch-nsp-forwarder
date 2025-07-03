@@ -49,6 +49,7 @@ export function AppIconSelector({
 		focused,
 	);
 
+	// TESTING ONLY
 	useGamepadButton(
 		'X',
 		() => {
@@ -58,7 +59,7 @@ export function AppIconSelector({
 				setErrorModal(null);
 			}
 		},
-		[filePickerOpen, errorModal],
+		[errorModal],
 		focused,
 	);
 

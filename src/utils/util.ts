@@ -58,7 +58,7 @@ export async function AppIconFromImageUrl(url: URL): Promise<ArrayBuffer> {
 	if (!ext || (ext !== 'jpg' && ext !== 'jpeg' && ext !== 'png')) {
 		throw new Error('Only JPEG and PNG images are supported.');
 	}
-	let fileData = Switch.readFileSync(url); // Returns ArrayBuffer type
+	const fileData = Switch.readFileSync(url); // Returns ArrayBuffer type
 	if (!fileData) throw new Error('Failed to read file');
 	try {
 		const icon = await processAppIcon(fileData);
@@ -68,6 +68,6 @@ export async function AppIconFromImageUrl(url: URL): Promise<ArrayBuffer> {
 			);
 		return icon;
 	} catch (err) {
-		throw new Error('Failed to process image.\nReason: ' + err);
+		throw new Error(`Failed to process image.\nReason: ${err}`);
 	}
 }
