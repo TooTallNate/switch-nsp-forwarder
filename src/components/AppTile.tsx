@@ -22,7 +22,7 @@ export function AppTile({
 	const width = root.ctx.canvas.width / perRow;
 	const height = width;
 	const x = (index % perRow) * width;
-	const row = Math.floor(index / perRow)
+	const row = Math.floor(index / perRow);
 	const y = row * height - (scrollOffset * height) / 2;
 	const iconSize = width * 0.75;
 	return (

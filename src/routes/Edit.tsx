@@ -15,7 +15,6 @@ export interface EditState extends AppInfo {
 
 export function Edit() {
 	const initialState: EditState = useLocation().state;
-	if (!initialState) {console.error('No initial state');}
 	const root = useRoot();
 	const navigate = useNavigate();
 	const [id, setId] = useState(() => {
@@ -87,19 +86,9 @@ export function Edit() {
 		],
 	);
 
-	useGamepadButton(
-		'X',
-		() => goToGenerate(true),
-		[goToGenerate],
-		hasFocus,
-	);
+	useGamepadButton('X', () => goToGenerate(true), [goToGenerate], hasFocus);
 
-	useGamepadButton(
-		'Y',
-		() => goToGenerate(false),
-		[goToGenerate],
-		hasFocus,
-	);
+	useGamepadButton('Y', () => goToGenerate(false), [goToGenerate], hasFocus);
 
 	useGamepadButton(
 		'B',
@@ -181,7 +170,10 @@ export function Edit() {
 						fontSize={24}
 						fill='white'
 						focused={focusedIndex === i && !iconSelected}
-						onTouchEnd={() => {setFocusedIndex(i); setIconSelected(false);}}
+						onTouchEnd={() => {
+							setFocusedIndex(i);
+							setIconSelected(false);
+						}}
 					/>
 				</>
 			))}
@@ -207,11 +199,10 @@ export function Edit() {
 				focused={iconSelected}
 				x={root.ctx.canvas.width - 320}
 				y={64}
-				onStealFocus={(isFocus:boolean) => setFilePickerIsOpen(isFocus)}
+				onStealFocus={(isFocus: boolean) => setFilePickerIsOpen(isFocus)}
 				onChange={setIcon}
 				onClick={() => setIconSelected(true)}
 			/>
-
 		</>
 	);
 }

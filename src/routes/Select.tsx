@@ -22,7 +22,7 @@ export function Select() {
 	// Calculate scroll position to keep selected row in view
 	// Generally always in the middle unless the top or bottom row is selected
 	const selectedRow = Math.floor(selectedIndex / perRow);
-	const isLastRow = selectedRow === totalRows-1
+	const isLastRow = selectedRow === totalRows - 1;
 	const scrollOffset = Math.max(0, selectedRow) + (isLastRow ? 0.5 : 0);
 
 	const goToEdit = useCallback(

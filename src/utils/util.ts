@@ -17,7 +17,9 @@ export const MAX_IMAGE_BUFFER = 0x20000;
  * @param iconBuf ArrayBuffer of the image
  * @returns Promise<ArrayBuffer> processed icon buffer
  */
-export async function processAppIcon(iconBuf: ArrayBuffer): Promise<ArrayBuffer> {
+export async function processAppIcon(
+	iconBuf: ArrayBuffer,
+): Promise<ArrayBuffer> {
 	const logo = await Jimp.fromBuffer(iconBuf);
 	// Check if already processed
 	if (
@@ -60,7 +62,10 @@ export async function AppIconFromImageUrl(url: URL): Promise<ArrayBuffer> {
 	if (!fileData) throw new Error('Failed to read file');
 	try {
 		const icon = await processAppIcon(fileData);
-		if(icon.byteLength >= MAX_IMAGE_BUFFER) throw new Error('Icon size was too large / uncompressable. Try a new file.');
+		if (icon.byteLength >= MAX_IMAGE_BUFFER)
+			throw new Error(
+				'Icon size was too large / uncompressable. Try a new file.',
+			);
 		return icon;
 	} catch (err) {
 		throw new Error('Failed to process image.\nReason: ' + err);
