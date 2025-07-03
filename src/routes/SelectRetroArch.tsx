@@ -30,5 +30,5 @@ export function SelectRetroArch() {
 		[navigate],
 	);
 
-	return <FilePicker onSelect={handleSelect} />;
+	return <FilePicker onSelect={handleSelect} onClose={() => navigate(-1)} />;
 }

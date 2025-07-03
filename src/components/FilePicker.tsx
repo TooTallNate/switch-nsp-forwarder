@@ -114,7 +114,6 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 		focused,
 	);
 
-	// FIXME: exit the picker when we're at the root directory
 	useGamepadButton(
 		'B',
 		() => doSelect(entries[0]),
