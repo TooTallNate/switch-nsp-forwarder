@@ -127,7 +127,6 @@ export function Edit() {
 		() => {
 			if (iconSelected) {
 				setIconSelected(false);
-				// focusedIndex remains the same
 			}
 		},
 		[iconSelected],
@@ -146,7 +145,7 @@ export function Edit() {
 	return (
 		<>
 			<Text fill='white' fontSize={32} x={4} y={8}>
-				Edit configuration for your forwarder: {hasFocus.toString()}
+				Edit configuration for your forwarder:
 			</Text>
 
 			{fields.map(({ name, value, onChange }, i) => (
