@@ -51,20 +51,6 @@ export function AppIconSelector({
 		focused && !filePickerOpen,
 	);
 
-	// TESTING ONLY
-	useGamepadButton(
-		'X',
-		() => {
-			if (!errorModal) {
-				setErrorModal('Testing The Error Modal.\nThis is a multi-line message');
-			} else {
-				setErrorModal(null);
-			}
-		},
-		[errorModal],
-		focused,
-	);
-
 	const handleFileSelect = useCallback(
 		async (url: URL) => {
 			setFilePickerOpen(false);
