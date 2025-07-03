@@ -1,4 +1,4 @@
-import { Group, Rect, Text, useRoot } from 'react-tela';
+import { Group, Rect, RoundRect, Text, useRoot } from 'react-tela';
 import { FooterItem } from './Footer';
 import { Shade } from './Shade';
 import type { ButtonName } from '../types';
@@ -42,6 +42,8 @@ export const Modal = ({
 
 	const { width: w, height: h } = root.ctx.canvas;
 
+	const corner=8;
+
 	return (
 		<>
 			<Shade />
@@ -51,7 +53,7 @@ export const Modal = ({
 				x={w / 2 - width / 2}
 				y={h / 2 - height / 2}
 			>
-				<Rect width={width} height={height} fill='#484848' />
+				<RoundRect width={width} height={height} fill='#484848' radii={corner} />
 				{title && (
 					<Text fill='white' fontSize={22} x={20} y={20} fontWeight='bold'>
 						{title}
@@ -81,7 +83,7 @@ export const Modal = ({
 				{/* Pseudo footer area */}
 				<Group width={width} height={74} y={height - 74}>
 					<Rect width={width} height={2} fill='white' />
-					{buttons.reverse().map((button, index, arr) => {
+					{buttons.map((button, index, arr) => {
 						// Divide the space evenly, sharing the remainder to the first items
 						const buttonWidth = baseButtonWidth + (index < remainder ? 1 : 0);
 						const x = index * (buttonWidth + dividerWidth);
@@ -95,15 +97,18 @@ export const Modal = ({
 							(hasLeftDivider ? dividerWidth / 2 : 0) +
 							(hasRightDivider ? dividerWidth / 2 : 0);
 
+						const buttonRadii = [0,0, hasRightDivider? 0 : corner + dividerWidth, hasLeftDivider? 0 : corner + dividerWidth ]
+
 						return (
 							<>
 								{button.selected && (
-									<Rect
+									<RoundRect
 										x={x}
 										y={0}
 										width={buttonWidth}
 										height={74}
 										fill='rgba(255,255,255,0.15)'
+										radii={buttonRadii}
 									/>
 								)}
 								<FooterItem
@@ -122,13 +127,14 @@ export const Modal = ({
 									/>
 								)}
 								{button.selected && (
-									<Rect
+									<RoundRect
 										x={selectionX}
 										y={0}
 										width={selectionWidth}
 										height={74}
 										stroke='white'
 										lineWidth={dividerWidth * 2}
+										radii={buttonRadii}
 									/>
 								)}
 							</>
