@@ -20,9 +20,10 @@ export function Select() {
 	const totalRows = Math.ceil(apps.length / perRow);
 
 	// Calculate scroll position to keep selected row in view
-	// Generally always in the middle unless the top row is selected
+	// Generally always in the middle unless the top or bottom row is selected
 	const selectedRow = Math.floor(selectedIndex / perRow);
-	const scrollOffset = Math.max(0, selectedRow);
+	const isLastRow = selectedRow === totalRows - 1;
+	const scrollOffset = Math.max(0, selectedRow) + (isLastRow ? 0.5 : 0);
 
 	const goToEdit = useCallback(
 		(appInfo: AppInfo) => {
@@ -115,6 +116,7 @@ export function Select() {
 						onTouchEnd={() => goToEdit(app)}
 						selected={selectedIndex === i}
 						scrollOffset={scrollOffset}
+						perRow={perRow}
 					/>
 				))}
 				<Scrollbar

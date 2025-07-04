@@ -1,13 +1,13 @@
-import { Jimp } from 'jimp';
 import { Text } from 'react-tela';
 import { NACP } from '@tootallnate/nacp';
 import { NcmStorageId } from '@nx.js/ncm';
 import { installNsp } from '@nx.js/install-title';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { prodKeys } from '../prod-keys';
+import { prodKeys } from '../utils/prod-keys';
 import type { Module } from '../hacbrewpack';
 import type { AppInfo } from '../apps';
+import { processAppIcon } from '../utils/util';
 
 type Status = 'generating' | 'installing' | 'error' | 'success';
 
@@ -71,34 +71,7 @@ export function Generate() {
 			// Run the icon through Jimp to resize it and/or remove EXIF metadata
 			let iconBuf = icon;
 			if (iconBuf) {
-				const logo = await Jimp.fromBuffer(iconBuf);
-				logo.resize({ w: 256, h: 256 });
-
-				// The icon size must be less than 0x20000 bytes otherwise
-				// Atmosphère shows a "?" icon on the home screen, so we
-				// generate the JPEG in a loop until we get a smaller icon.
-				let quality = 100;
-				while (true) {
-					iconBuf = await logo.getBuffer('image/jpeg', { quality });
-					console.debug(
-						`icon size: ${iconBuf.byteLength} with JPEG quality ${quality}%`,
-					);
-
-					if (iconBuf.byteLength < 0x20000) {
-						// The generated icon is within the allowed size, so we're done.
-						break;
-					}
-
-					// Icon is too large, so reduce the JPEG quality and try again.
-					quality -= 2;
-					if (quality <= 0) {
-						console.debug('icon size is still too large - giving up...');
-						break;
-					}
-					console.debug(
-						`icon size is too large, reducing JPEG quality to ${quality}%`,
-					);
-				}
+				iconBuf = await processAppIcon(iconBuf);
 			}
 
 			let Module: Module;

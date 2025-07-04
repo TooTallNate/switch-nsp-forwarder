@@ -11,7 +11,7 @@ addEventListener('unload', () => {
 import { render } from 'react-tela/render';
 import { RouterProvider, createMemoryRouter } from 'react-router-dom';
 import { AppletType } from '@nx.js/constants';
-import { prodKeys } from './prod-keys';
+import { prodKeys } from './utils/prod-keys';
 
 // Routes
 import { ErrorAppletMode } from './routes/ErrorAppletMode';

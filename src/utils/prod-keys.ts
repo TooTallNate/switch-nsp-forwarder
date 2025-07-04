@@ -1,4 +1,4 @@
-import { splCryptoGenerateAesKek, splCryptoGenerateAesKey } from './ipc/spl';
+import { splCryptoGenerateAesKek, splCryptoGenerateAesKey } from '../ipc/spl';
 import { abToHex } from './util';
 
 export let prodKeys = Switch.readFileSync('sdmc:/switch/prod.keys');

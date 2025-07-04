@@ -2,9 +2,9 @@ import { useCallback, useState } from 'react';
 import { Text, useRoot } from 'react-tela';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { TextInput } from '../components/TextInput';
-import { AppIcon } from '../components/AppIcon';
-import { useGamepadButton } from '../hooks/use-gamepad';
-import { generateRandomID } from '../title-id';
+import { AppIconSelector } from '../components/AppIconSelector';
+import { useDirection, useGamepadButton } from '../hooks/use-gamepad';
+import { generateRandomID } from '../utils/title-id';
 import { Footer, FooterItem } from '../components/Footer';
 import type { GenerateState } from './Generate';
 import type { AppInfo } from '../apps';
@@ -15,7 +15,6 @@ export interface EditState extends AppInfo {
 
 export function Edit() {
 	const initialState: EditState = useLocation().state;
-	const { icon } = initialState;
 	const root = useRoot();
 	const navigate = useNavigate();
 	const [id, setId] = useState(() => {
@@ -35,7 +34,10 @@ export function Edit() {
 	const [profileSelector, _setProfileSelector] = useState(false);
 	const [nroPath, setNroPath] = useState(() => initialState.path);
 	const [romPath, setRomPath] = useState(() => initialState.romPath ?? '');
+	const [icon, setIcon] = useState<ArrayBuffer | undefined>(initialState.icon);
 	const [focusedIndex, setFocusedIndex] = useState(-1);
+	const [iconSelected, setIconSelected] = useState(false);
+	const [iconPickerIsOpen, setFilePickerIsOpen] = useState(false);
 
 	const fields = [
 		{ name: 'Title ID', value: id, onChange: setId, description: '' },
@@ -54,6 +56,7 @@ export function Edit() {
 	}
 	const fieldsLength = fields.length;
 	const keyboardShown = navigator.virtualKeyboard.boundingRect.height > 0;
+	const hasFocus = !keyboardShown && !iconPickerIsOpen;
 
 	const goToGenerate = useCallback(
 		(install: boolean) => {
@@ -83,19 +86,9 @@ export function Edit() {
 		],
 	);
 
-	useGamepadButton(
-		'X',
-		() => goToGenerate(true),
-		[goToGenerate],
-		!keyboardShown,
-	);
+	useGamepadButton('X', () => goToGenerate(true), [goToGenerate], hasFocus);
 
-	useGamepadButton(
-		'Y',
-		() => goToGenerate(false),
-		[goToGenerate],
-		!keyboardShown,
-	);
+	useGamepadButton('Y', () => goToGenerate(false), [goToGenerate], hasFocus);
 
 	useGamepadButton(
 		'B',
@@ -104,25 +97,49 @@ export function Edit() {
 			navigate(-1);
 		},
 		[navigate],
-		!keyboardShown,
+		hasFocus,
 	);
 
-	useGamepadButton(
+	useDirection(
 		'Up',
 		() => {
-			setFocusedIndex((i) => Math.max(0, i - 1));
+			if (!iconSelected) {
+				setFocusedIndex((i) => Math.max(0, i - 1));
+			}
 		},
-		[],
-		!keyboardShown,
+		[iconSelected],
+		hasFocus,
 	);
 
-	useGamepadButton(
+	useDirection(
 		'Down',
 		() => {
-			setFocusedIndex((i) => Math.min(fieldsLength - 1, i + 1));
+			if (!iconSelected) {
+				setFocusedIndex((i) => Math.min(fieldsLength - 1, i + 1));
+			}
 		},
-		[fieldsLength],
-		!keyboardShown,
+		[iconSelected, fieldsLength],
+		hasFocus,
+	);
+
+	useDirection(
+		'Left',
+		() => {
+			if (iconSelected) {
+				setIconSelected(false);
+			}
+		},
+		[iconSelected],
+		hasFocus,
+	);
+
+	useDirection(
+		'Right',
+		() => {
+			setIconSelected(true);
+		},
+		[],
+		hasFocus,
 	);
 
 	return (
@@ -151,13 +168,14 @@ export function Edit() {
 						y={80 + i * 50}
 						fontSize={24}
 						fill='white'
-						focused={focusedIndex === i}
-						onTouchEnd={() => setFocusedIndex(i)}
+						focused={focusedIndex === i && !iconSelected}
+						onTouchEnd={() => {
+							setFocusedIndex(i);
+							setIconSelected(false);
+						}}
 					/>
 				</>
 			))}
-
-			<AppIcon icon={icon} x={root.ctx.canvas.width - 320} y={64} />
 
 			<Footer>
 				<FooterItem button='B' x={root.ctx.canvas.width - 740}>
@@ -173,6 +191,17 @@ export function Edit() {
 					Install Forwarder
 				</FooterItem>
 			</Footer>
+
+			{/* Place below the Footer to render modals on top */}
+			<AppIconSelector
+				icon={icon}
+				focused={iconSelected}
+				x={root.ctx.canvas.width - 320}
+				y={64}
+				onStealFocus={(isFocus: boolean) => setFilePickerIsOpen(isFocus)}
+				onChange={setIcon}
+				onClick={() => setIconSelected(true)}
+			/>
 		</>
 	);
 }

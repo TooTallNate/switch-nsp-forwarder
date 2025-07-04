@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Group, Rect, Text, useRoot } from 'react-tela';
 import { useGamepadButton, useDirection } from '../hooks/use-gamepad';
-import { isDirectory } from '../util';
+import { isDirectory } from '../utils/util';
 import { Scrollbar } from './Scrollbar';
 
 interface Entry {
@@ -114,7 +114,6 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 		focused,
 	);
 
-	// FIXME: exit the picker when we're at the root directory
 	useGamepadButton(
 		'B',
 		() => doSelect(entries[0]),
