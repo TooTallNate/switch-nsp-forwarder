@@ -40,14 +40,14 @@ importers:
         specifier: ^1.9.4
         version: 1.9.4
       '@nx.js/nro':
-        specifier: 0.0.64
-        version: 0.0.64
+        specifier: 0.0.67
+        version: 0.0.67
       '@nx.js/nsp':
-        specifier: 0.0.64
-        version: 0.0.64
+        specifier: 0.0.67
+        version: 0.0.67
       '@nx.js/runtime':
-        specifier: 0.0.64
-        version: 0.0.64
+        specifier: 0.0.67
+        version: 0.0.67
       '@types/react':
         specifier: ^18.3.23
         version: 18.3.23
@@ -538,22 +538,22 @@ packages:
   '@nx.js/ncm@1.2.0':
     resolution: {integrity: sha512-azxdrFxu6BnRcpydU2aoipwGHONnLtk4q8kg44aZ+GKe3fHsiEqNYvG5f/Y80OTFScTiLor5d53t7l0gbb65Nw==}
 
-  '@nx.js/nro@0.0.64':
-    resolution: {integrity: sha512-qKvFATQfP/gUBLeIBlbqtmi2F9JqxZI0kwhb6MiUc3/9q61d1lcLewe0bqSt51gjJgACN6UJakCEE6WJNa0NAg==}
+  '@nx.js/nro@0.0.67':
+    resolution: {integrity: sha512-RfhZv0MXdwuSEctg6LwEylwubeqSU2uqlYUAi1ZmnXOY4Ulthxj17ZrOimvrFCbGpzEsfZn7tfU2fxA2RXMCLw==}
     hasBin: true
 
   '@nx.js/ns@1.0.0':
     resolution: {integrity: sha512-9l9OM/VP9jfnp8zJ78SDKVqRbD4nOGXvFgfmex5B8njM+9CZy6+R0R8KXrRnkShI/+8zeZYjgPjzDFyg4YUeoA==}
 
-  '@nx.js/nsp@0.0.64':
-    resolution: {integrity: sha512-BYcXou6SSMcaJNy8a8rqPD4IYGv1rfQAyvkWlf7SdFIEjJzhEc0xVGGqtwpHVpZdMfsoKhabdp4uVN+bAoP/hg==}
+  '@nx.js/nsp@0.0.67':
+    resolution: {integrity: sha512-xiSmKxKoJW0s5f5HzkxQFO2inzZeo5ipAliAAonG1ZnzwGstKz9RQ6sOHSEOklgtoey4YVyCWErKl7e8JvUykA==}
     hasBin: true
 
   '@nx.js/patch-nacp@2.0.0':
     resolution: {integrity: sha512-px4mL57q5g167kvo3wguxe2i/Ky5By9i5SBN3dmdGr6Mlo3JwHRGILegFLux0sjClU0LEwJWMWdoFShinOuwqw==}
 
-  '@nx.js/runtime@0.0.64':
-    resolution: {integrity: sha512-5y1x7sFajsfF5+hgp+WueoRREIwW3DFY6FEsVf/gW0+3NAytABCZB+97qw16pnBsyEDh5d7IlBF6JaAUAp7SEg==}
+  '@nx.js/runtime@0.0.67':
+    resolution: {integrity: sha512-rkCGhX5kxuH4y7kdWRZAlwXV88EybdlthmjG/gX+E58Gcztkw1FUtWCgpI5UkzkN1ay2EFbnD2HiODtSuVCxmw==}
 
   '@nx.js/util@1.1.0':
     resolution: {integrity: sha512-UUWJCFpFSKHhp3HYrKk+BVmUpS2JxD55Dqhw6TJTmOaTI3HKOqQJJlIOwK/GRRW3VTXAOO13x+k4BHxFy7jnPg==}
@@ -565,8 +565,23 @@ packages:
   '@tokenizer/token@0.3.0':
     resolution: {integrity: sha512-OvjF+z51L3ov0OyAU0duzsYuvO01PH7x4t6DJx+guahgTnBHkhJdG7soQeTSFLWN3efnHyibZ4Z8l2EuWwJN3A==}
 
+  '@tootallnate/aes-xts@0.0.1':
+    resolution: {integrity: sha512-dajgTqbQ98Z24EfZknLE1U9EPexkpce315L9FMFKqcz2QZVzEaAJGjHjk4gtNmdWfJSinfYHM8J13SZI0f8edw==}
+
+  '@tootallnate/cnmt@0.0.1':
+    resolution: {integrity: sha512-VCvNJE/jNUp2+numJ3r0i0uVL5p6EO5FV9iJZpLJqLY+VYnjAEuvb7MkMMcWLoBqpYYxfKakq1O7UkjJqiXnUg==}
+
+  '@tootallnate/hacbrewpack@0.0.1':
+    resolution: {integrity: sha512-vsVc9iO+6vI81TjxEb35FdSaK2gaL++LjgipntfPaIiaM7S+Z5CloB45L+Ih5tMNrXHwRMj74BYpzepDI+xxiA==}
+
+  '@tootallnate/ivfc@0.0.1':
+    resolution: {integrity: sha512-ftsCuHRDLQVlCBg2pTAi8aY/vH8G2mB1tFb6urWJyTQ39CUFbwgYOCvCx2xX3rXaNLSqSamQyIpDibcn0D0H+Q==}
+
   '@tootallnate/nacp@0.2.0':
     resolution: {integrity: sha512-DzETn6PBoezv3t6nIAQNTffSH6+NBdmlLYG7+eKzVGyuvH4KiZUr0/TqrH/Uv7jBO2Vl3xSaOMt6L61yLe0VNA==}
+
+  '@tootallnate/nca@0.0.1':
+    resolution: {integrity: sha512-dMLMjfBd2puXmQU+SiSX4rcnc50RA05hxhRaKIwxOz3m82AA7pu10MYCJqnNCuxdTLdhRnKwaLAaA5oKVm3FLg==}
 
   '@tootallnate/nro@0.1.2':
     resolution: {integrity: sha512-ftaCXHpuScjtoTgA3C7Ne8ChfQo7TvSMcQaXA+y10Zh9qC8Abw6JKk7RCPC2YeVLg1n+1b4H887SB52EaZ4LvQ==}
@@ -576,6 +591,9 @@ packages:
 
   '@tootallnate/romfs@0.1.0':
     resolution: {integrity: sha512-ZXEgARulK9g0wLgL2mrsxOyAfcI0pAVSi+0UUs1B3lfbBv7qaltMe37YTmn8Aa8BvJ/sc+XqTI5aA7U6NX/nRg==}
+
+  '@tootallnate/romfs@0.1.1':
+    resolution: {integrity: sha512-dd0435f0hPfOV5KGKMxS0NAgruaukQ4MoOdLcZr36HQMNee23qVEsEiYZyxvJZ0ixwoXYMr65ZrzdFOjpNp29w==}
 
   '@types/node@16.9.1':
     resolution: {integrity: sha512-QpLcX9ZSsq3YYUUnD3nFDY8H7wctAhQj/TFKL8Ya8v5fMm3CFXxo8zStsLAl780ltoYoo1WvKUVGBQK+1ifr7g==}
@@ -787,9 +805,6 @@ packages:
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
-  line-async-iterator@5.0.1:
-    resolution: {integrity: sha512-3WKSBtHP1AQ4lJ8JLfWyDz04F0Vbo6tfCtQ7fil/5R8UCjJ4zvWcCiqwx5XKFaoDb78utaOygRHVYL+aJFLlOQ==}
-
   load-bmfont@1.4.2:
     resolution: {integrity: sha512-qElWkmjW9Oq1F9EI5Gt7aD9zcdHb9spJCW1L/dmPf7KzCCEJxq8nhHz5eCgI9aMf7vrG/wyaCqdsI+Iy9ZTlog==}
 
@@ -884,6 +899,7 @@ packages:
   phin@3.7.1:
     resolution: {integrity: sha512-GEazpTWwTZaEQ9RhL7Nyz0WwqilbqgLahDM3D0hxWwmVDI52nXEybHqiN6/elwpkJBhcuj+WbBu+QfT0uhPGfQ==}
     engines: {node: '>= 8'}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   pixelmatch@4.0.2:
     resolution: {integrity: sha512-J8B6xqiO37sU/gkcMglv6h5Jbd9xNER7aHzpfRdNmV4IbQBzBpe4l9XmbG+xPF/znacgu2jfEw+wHffaq/YkXA==}
@@ -1647,7 +1663,7 @@ snapshots:
       '@nx.js/constants': 0.4.0
       '@nx.js/util': 1.1.0
 
-  '@nx.js/nro@0.0.64':
+  '@nx.js/nro@0.0.67':
     dependencies:
       '@nx.js/patch-nacp': 2.0.0
       '@tootallnate/nacp': 0.2.0
@@ -1663,14 +1679,14 @@ snapshots:
     dependencies:
       '@nx.js/constants': 0.4.0
 
-  '@nx.js/nsp@0.0.64':
+  '@nx.js/nsp@0.0.67':
     dependencies:
       '@nx.js/patch-nacp': 2.0.0
+      '@tootallnate/hacbrewpack': 0.0.1
       '@tootallnate/nacp': 0.2.0
       bytes: 3.1.2
       chalk: 5.4.1
       jimp: 1.6.0
-      line-async-iterator: 5.0.1
       terminal-image: 3.1.1
     transitivePeerDependencies:
       - debug
@@ -1682,7 +1698,7 @@ snapshots:
       title-case: 4.3.2
       types-package-json: 2.0.39
 
-  '@nx.js/runtime@0.0.64': {}
+  '@nx.js/runtime@0.0.67': {}
 
   '@nx.js/util@1.1.0': {}
 
@@ -1690,7 +1706,25 @@ snapshots:
 
   '@tokenizer/token@0.3.0': {}
 
+  '@tootallnate/aes-xts@0.0.1': {}
+
+  '@tootallnate/cnmt@0.0.1': {}
+
+  '@tootallnate/hacbrewpack@0.0.1':
+    dependencies:
+      '@tootallnate/cnmt': 0.0.1
+      '@tootallnate/nca': 0.0.1
+      '@tootallnate/romfs': 0.1.1
+
+  '@tootallnate/ivfc@0.0.1': {}
+
   '@tootallnate/nacp@0.2.0': {}
+
+  '@tootallnate/nca@0.0.1':
+    dependencies:
+      '@tootallnate/aes-xts': 0.0.1
+      '@tootallnate/cnmt': 0.0.1
+      '@tootallnate/ivfc': 0.0.1
 
   '@tootallnate/nro@0.1.2':
     dependencies:
@@ -1699,6 +1733,8 @@ snapshots:
   '@tootallnate/nsp@0.0.2': {}
 
   '@tootallnate/romfs@0.1.0': {}
+
+  '@tootallnate/romfs@0.1.1': {}
 
   '@types/node@16.9.1': {}
 
@@ -1930,8 +1966,6 @@ snapshots:
   jpeg-js@0.4.4: {}
 
   js-tokens@4.0.0: {}
-
-  line-async-iterator@5.0.1: {}
 
   load-bmfont@1.4.2:
     dependencies:
