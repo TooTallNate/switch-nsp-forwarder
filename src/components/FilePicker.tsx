@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Group, Rect, Text, useRoot } from 'react-tela';
-import { useGamepadButton, useDirection } from '../hooks/use-gamepad';
+import { Group, Rect, Text, useParent } from 'react-tela';
+import { useDirection, useGamepadButton } from '../hooks/use-gamepad';
 import { isDirectory } from '../util';
 import { Scrollbar } from './Scrollbar';
 
@@ -19,23 +19,18 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 	const [entries, setEntries] = useState<Entry[]>([]);
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const [scrollOffset, setScrollOffset] = useState(0);
-	const root = useRoot();
+	const root = useParent();
 	const focused = true;
 	const numEntries = entries.length;
 	const itemHeight = 20;
 	const padding = 8;
+	const itemTotalHeight = itemHeight + padding * 2;
 	const visibleWidth = root.ctx.canvas.width - 80;
 	const visibleHeight = root.ctx.canvas.height - 80;
-	const itemsPerPage = Math.floor(visibleHeight / (itemHeight + padding * 2));
-	const centeringPadding = Math.floor(
-		(visibleHeight % (itemHeight + padding * 2)) / 2,
-	);
-
-	// Calculate visible entries
-	const visibleEntries = entries.slice(
-		scrollOffset,
-		scrollOffset + itemsPerPage,
-	);
+	const itemsPerPage = Math.floor(visibleHeight / itemTotalHeight);
+	const centeringPadding = Math.floor((visibleHeight % itemTotalHeight) / 2);
+	const contentHeight = numEntries * itemTotalHeight;
+	const scrollTop = scrollOffset * itemTotalHeight;
 
 	const doSelect = useCallback(
 		(entry: Entry) => {
@@ -168,16 +163,19 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 				/>
 				<Group
 					width={visibleWidth}
-					height={visibleHeight}
+					height={visibleHeight - centeringPadding * 2}
+					contentHeight={contentHeight}
+					scrollTop={scrollTop}
 					y={centeringPadding}
 					x={0}
 				>
-					{visibleEntries.map((entry, i) => (
+					{entries.map((entry, i) => (
 						<FilePickerItem
 							key={entry.name}
 							entry={entry}
 							index={i}
-							selected={scrollOffset + i === selectedIndex}
+							selected={i === selectedIndex}
+							width={visibleWidth}
 						/>
 					))}
 				</Group>
@@ -203,13 +201,13 @@ function FilePickerItem({
 	entry,
 	index,
 	selected,
+	width,
 }: {
 	entry: Entry;
 	index: number;
 	selected: boolean;
+	width: number;
 }) {
-	const root = useRoot();
-	const width = root.ctx.canvas.width - 80;
 	const height = 20;
 	const padding = 8;
 	const y = (height + padding * 2) * index;

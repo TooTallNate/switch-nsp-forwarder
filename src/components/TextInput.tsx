@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Group, Rect, Text, useRoot, type TextProps } from 'react-tela';
+import { Group, Rect, Text, type TextProps, useParent } from 'react-tela';
 import { useGamepadButton } from '../hooks/use-gamepad';
 
 export interface TextInputProps extends TextProps {
@@ -23,7 +23,7 @@ export function TextInput({
 	focused = false,
 	...textProps
 }: TextInputProps) {
-	const root = useRoot();
+	const root = useParent();
 	const [cursorPosition, setCursorPosition] = useState(-1);
 
 	useGamepadButton(

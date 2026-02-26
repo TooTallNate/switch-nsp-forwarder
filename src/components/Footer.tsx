@@ -1,9 +1,9 @@
-import { useRoot, Group, Rect, Text } from 'react-tela';
+import { Group, Rect, Text, useParent } from 'react-tela';
 import { BUTTON_ICONS } from '../button-icons';
 import type { ButtonName } from '../types';
 
 export function Footer({ children }: { children: React.ReactNode }) {
-	const root = useRoot();
+	const root = useParent();
 	return (
 		<Group
 			width={root.ctx.canvas.width}

@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Text, useRoot } from 'react-tela';
+import { Text, useParent } from 'react-tela';
 import { Footer, FooterItem } from '../components/Footer';
-import { useDirection, useGamepadButton } from '../hooks/use-gamepad';
 import {
 	NROForwarderIcon,
 	RetroArchForwarderIcon,
 } from '../components/ForwarderIcon';
+import { useDirection, useGamepadButton } from '../hooks/use-gamepad';
 
 const NEXT_ROUTES = ['/select', '/select-retroarch'];
 
 export function SelectForwarderType() {
-	const root = useRoot();
+	const root = useParent();
 	const navigate = useNavigate();
 	const [selectedIndex, setSelectedIndex] = useState(0);
 

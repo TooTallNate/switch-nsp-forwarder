@@ -1,9 +1,9 @@
-import { Text, useRoot } from 'react-tela';
-import { useGamepadButton } from '../hooks/use-gamepad';
+import { Text, useParent } from 'react-tela';
 import { Footer, FooterItem } from '../components/Footer';
+import { useGamepadButton } from '../hooks/use-gamepad';
 
 export function ErrorAppletMode() {
-	const root = useRoot();
+	const root = useParent();
 
 	useGamepadButton('A', () => Switch.exit(), []);
 

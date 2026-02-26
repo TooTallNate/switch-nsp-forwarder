@@ -1,13 +1,13 @@
 import { useCallback, useState } from 'react';
-import { Text, useRoot } from 'react-tela';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { TextInput } from '../components/TextInput';
+import { Text, useParent } from 'react-tela';
+import type { AppInfo } from '../apps';
 import { AppIcon } from '../components/AppIcon';
+import { Footer, FooterItem } from '../components/Footer';
+import { TextInput } from '../components/TextInput';
 import { useGamepadButton } from '../hooks/use-gamepad';
 import { generateRandomID } from '../title-id';
-import { Footer, FooterItem } from '../components/Footer';
 import type { GenerateState } from './Generate';
-import type { AppInfo } from '../apps';
 
 export interface EditState extends AppInfo {
 	romPath?: string;
@@ -16,7 +16,7 @@ export interface EditState extends AppInfo {
 export function Edit() {
 	const initialState: EditState = useLocation().state;
 	const { icon } = initialState;
-	const root = useRoot();
+	const root = useParent();
 	const navigate = useNavigate();
 	const [id, setId] = useState(() => {
 		let idVal = 0n;

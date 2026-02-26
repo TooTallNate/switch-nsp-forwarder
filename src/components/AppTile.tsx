@@ -1,4 +1,4 @@
-import { Group, Rect, Text, useRoot } from 'react-tela';
+import { Group, Rect, Text, useParent } from 'react-tela';
 import { AppIcon } from './AppIcon';
 
 export function AppTile({
@@ -7,21 +7,19 @@ export function AppTile({
 	index,
 	selected,
 	onTouchEnd,
-	scrollOffset = 0,
 }: {
 	icon: ArrayBuffer | undefined;
 	name: string;
 	index: number;
 	selected: boolean;
 	onTouchEnd?: () => void;
-	scrollOffset?: number;
 }) {
-	const root = useRoot();
+	const root = useParent();
 	const perRow = 5;
 	const width = root.ctx.canvas.width / perRow;
 	const height = width;
 	const x = (index % perRow) * width;
-	const y = Math.floor(index / perRow) * height - (scrollOffset * height) / 2;
+	const y = Math.floor(index / perRow) * height;
 	const iconSize = width * 0.75;
 	return (
 		<Group width={width} height={height} x={x} y={y} onTouchEnd={onTouchEnd}>

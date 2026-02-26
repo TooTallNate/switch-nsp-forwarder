@@ -3,6 +3,7 @@ import { Rect } from 'react-tela';
 export interface ScrollbarProps {
 	height: number;
 	x: number;
+	y?: number;
 	numEntries: number;
 	itemsPerPage: number;
 	scrollOffset: number;
@@ -12,6 +13,7 @@ export interface ScrollbarProps {
 export function Scrollbar({
 	height,
 	x,
+	y = 0,
 	numEntries,
 	itemsPerPage,
 	scrollOffset,
@@ -32,7 +34,7 @@ export function Scrollbar({
 			width={scrollbarWidth}
 			height={scrollbarHeight}
 			x={x - scrollbarWidth - padding}
-			y={scrollbarY}
+			y={y + scrollbarY}
 			fill='rgba(255, 255, 255, 0.5)'
 		/>
 	);

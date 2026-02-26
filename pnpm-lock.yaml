@@ -33,8 +33,8 @@ importers:
         specifier: 6.27.0
         version: 6.27.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-tela:
-        specifier: ^0.0.3
-        version: 0.0.3(react@18.3.1)
+        specifier: ^1.0.0
+        version: 1.0.0(react@18.3.1)
     devDependencies:
       '@biomejs/biome':
         specifier: ^1.9.4
@@ -558,6 +558,9 @@ packages:
   '@nx.js/util@1.1.0':
     resolution: {integrity: sha512-UUWJCFpFSKHhp3HYrKk+BVmUpS2JxD55Dqhw6TJTmOaTI3HKOqQJJlIOwK/GRRW3VTXAOO13x+k4BHxFy7jnPg==}
 
+  '@react-tela/core@1.0.0':
+    resolution: {integrity: sha512-GMOdh95ls5l1a+0TlDMlC/UDvekkbsUv/3XgPghf5y2/a8QrFaG3ePy23EmXHO5RbWqfVcDi3gOG7f3g3xI+dw==}
+
   '@remix-run/router@1.20.0':
     resolution: {integrity: sha512-mUnk8rPJBI9loFDZ+YzPGdeniYK+FTmRD1TMCz7ev2SNIozyKKpnGgsxO34u6Z4z/t0ITuu7voi/AshfsGsgFg==}
     engines: {node: '>=14.0.0'}
@@ -953,8 +956,8 @@ packages:
     peerDependencies:
       react: '>=16.8'
 
-  react-tela@0.0.3:
-    resolution: {integrity: sha512-9xB0kg1ziMyvlHDMwbpwG0c+5wDfbAFut5u4nbJZadgvnc05GO1K8DugqrM0BynWM/hZ40gMbTZ9RQVEf+zmeQ==}
+  react-tela@1.0.0:
+    resolution: {integrity: sha512-MtMyNRIQpvZD5jWahxf1+wNkp/Pwf0aHA7b5YUbjCJCv27vMtIo6NsEY2CpNSrrKjuIbh0EcCXxHUZEIVdpPoQ==}
     peerDependencies:
       react: '18'
 
@@ -1702,6 +1705,10 @@ snapshots:
 
   '@nx.js/util@1.1.0': {}
 
+  '@react-tela/core@1.0.0':
+    dependencies:
+      parse-svg-path: 0.1.2
+
   '@remix-run/router@1.20.0': {}
 
   '@tokenizer/token@0.3.0': {}
@@ -2103,9 +2110,9 @@ snapshots:
       '@remix-run/router': 1.20.0
       react: 18.3.1
 
-  react-tela@0.0.3(react@18.3.1):
+  react-tela@1.0.0(react@18.3.1):
     dependencies:
-      parse-svg-path: 0.1.2
+      '@react-tela/core': 1.0.0
       react: 18.3.1
       react-reconciler: 0.29.2(react@18.3.1)
 

@@ -1,10 +1,10 @@
-import { Text, useRoot } from 'react-tela';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Text, useParent } from 'react-tela';
 import { Footer, FooterItem } from '../components/Footer';
 import { useGamepadButton } from '../hooks/use-gamepad';
 
 export function Success() {
-	const root = useRoot();
+	const root = useParent();
 	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
 	const wasInstalled = searchParams.get('installed') === '1';
