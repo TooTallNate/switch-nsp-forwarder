@@ -33,21 +33,21 @@ importers:
         specifier: 6.27.0
         version: 6.27.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-tela:
-        specifier: ^1.0.0
-        version: 1.0.0(react@18.3.1)
+        specifier: ^1.0.1
+        version: 1.0.1(react@18.3.1)
     devDependencies:
       '@biomejs/biome':
         specifier: ^1.9.4
         version: 1.9.4
       '@nx.js/nro':
-        specifier: 0.0.67
-        version: 0.0.67
+        specifier: 0.0.68
+        version: 0.0.68
       '@nx.js/nsp':
-        specifier: 0.0.67
-        version: 0.0.67
+        specifier: 0.0.68
+        version: 0.0.68
       '@nx.js/runtime':
-        specifier: 0.0.67
-        version: 0.0.67
+        specifier: 0.0.68
+        version: 0.0.68
       '@types/react':
         specifier: ^18.3.23
         version: 18.3.23
@@ -538,28 +538,28 @@ packages:
   '@nx.js/ncm@1.2.0':
     resolution: {integrity: sha512-azxdrFxu6BnRcpydU2aoipwGHONnLtk4q8kg44aZ+GKe3fHsiEqNYvG5f/Y80OTFScTiLor5d53t7l0gbb65Nw==}
 
-  '@nx.js/nro@0.0.67':
-    resolution: {integrity: sha512-RfhZv0MXdwuSEctg6LwEylwubeqSU2uqlYUAi1ZmnXOY4Ulthxj17ZrOimvrFCbGpzEsfZn7tfU2fxA2RXMCLw==}
+  '@nx.js/nro@0.0.68':
+    resolution: {integrity: sha512-yaCaXTIosoqkv3RQaVsBeB5tTo0tazcDh2ozPQt038nqbV/PqBGfTgjdxYQcQrHva1U2InkDFpfY33J0grHNgw==}
     hasBin: true
 
   '@nx.js/ns@1.0.0':
     resolution: {integrity: sha512-9l9OM/VP9jfnp8zJ78SDKVqRbD4nOGXvFgfmex5B8njM+9CZy6+R0R8KXrRnkShI/+8zeZYjgPjzDFyg4YUeoA==}
 
-  '@nx.js/nsp@0.0.67':
-    resolution: {integrity: sha512-xiSmKxKoJW0s5f5HzkxQFO2inzZeo5ipAliAAonG1ZnzwGstKz9RQ6sOHSEOklgtoey4YVyCWErKl7e8JvUykA==}
+  '@nx.js/nsp@0.0.68':
+    resolution: {integrity: sha512-1a65LwGnu6XQ8Aj9Jc/2Wve8V5UKfCbJkRZhjeJoug9vBGFd1hiXnTYlbnWdogIhRtgAxoCDC9LPcp6LU68OeA==}
     hasBin: true
 
   '@nx.js/patch-nacp@2.0.0':
     resolution: {integrity: sha512-px4mL57q5g167kvo3wguxe2i/Ky5By9i5SBN3dmdGr6Mlo3JwHRGILegFLux0sjClU0LEwJWMWdoFShinOuwqw==}
 
-  '@nx.js/runtime@0.0.67':
-    resolution: {integrity: sha512-rkCGhX5kxuH4y7kdWRZAlwXV88EybdlthmjG/gX+E58Gcztkw1FUtWCgpI5UkzkN1ay2EFbnD2HiODtSuVCxmw==}
+  '@nx.js/runtime@0.0.68':
+    resolution: {integrity: sha512-sKg3q2nsHmXJ4Talb/v9S8+gLQywxvLRH4Eyz6FlVIhOuEG2LilifLAiSTUPhwVz7bOX7bIkkPIb94Tbtazr6A==}
 
   '@nx.js/util@1.1.0':
     resolution: {integrity: sha512-UUWJCFpFSKHhp3HYrKk+BVmUpS2JxD55Dqhw6TJTmOaTI3HKOqQJJlIOwK/GRRW3VTXAOO13x+k4BHxFy7jnPg==}
 
-  '@react-tela/core@1.0.0':
-    resolution: {integrity: sha512-GMOdh95ls5l1a+0TlDMlC/UDvekkbsUv/3XgPghf5y2/a8QrFaG3ePy23EmXHO5RbWqfVcDi3gOG7f3g3xI+dw==}
+  '@react-tela/core@1.0.1':
+    resolution: {integrity: sha512-YKauwKwFuPutI1729j67PFw8t/t1YVXD/Dsvc3TVDsNDjZAOvh8JXQVG/9swWIFBhvldRK+5/RZlhPgh4EujcQ==}
 
   '@remix-run/router@1.20.0':
     resolution: {integrity: sha512-mUnk8rPJBI9loFDZ+YzPGdeniYK+FTmRD1TMCz7ev2SNIozyKKpnGgsxO34u6Z4z/t0ITuu7voi/AshfsGsgFg==}
@@ -591,9 +591,6 @@ packages:
 
   '@tootallnate/nsp@0.0.2':
     resolution: {integrity: sha512-z5rPb6sMFwidTpLw05VHX/Hu1yUGvKXhQd+990nbcAPwGOzMkdSToETQ/4jSzyDoke1FsPyLdpSYlUuXWIEuDg==}
-
-  '@tootallnate/romfs@0.1.0':
-    resolution: {integrity: sha512-ZXEgARulK9g0wLgL2mrsxOyAfcI0pAVSi+0UUs1B3lfbBv7qaltMe37YTmn8Aa8BvJ/sc+XqTI5aA7U6NX/nRg==}
 
   '@tootallnate/romfs@0.1.1':
     resolution: {integrity: sha512-dd0435f0hPfOV5KGKMxS0NAgruaukQ4MoOdLcZr36HQMNee23qVEsEiYZyxvJZ0ixwoXYMr65ZrzdFOjpNp29w==}
@@ -956,8 +953,8 @@ packages:
     peerDependencies:
       react: '>=16.8'
 
-  react-tela@1.0.0:
-    resolution: {integrity: sha512-MtMyNRIQpvZD5jWahxf1+wNkp/Pwf0aHA7b5YUbjCJCv27vMtIo6NsEY2CpNSrrKjuIbh0EcCXxHUZEIVdpPoQ==}
+  react-tela@1.0.1:
+    resolution: {integrity: sha512-Aqd741Ju9JbUZtzhOV8swBYgoK1HGr4Bnfrs0X/5n2OdNDY/jEp4b5/lGAezxqWKEU5GMNJYSM0WQKNgIycmPg==}
     peerDependencies:
       react: '18'
 
@@ -1666,12 +1663,12 @@ snapshots:
       '@nx.js/constants': 0.4.0
       '@nx.js/util': 1.1.0
 
-  '@nx.js/nro@0.0.67':
+  '@nx.js/nro@0.0.68':
     dependencies:
       '@nx.js/patch-nacp': 2.0.0
       '@tootallnate/nacp': 0.2.0
       '@tootallnate/nro': 0.1.2
-      '@tootallnate/romfs': 0.1.0
+      '@tootallnate/romfs': 0.1.1
       bytes: 3.1.2
       chalk: 5.4.1
       terminal-image: 3.1.1
@@ -1682,7 +1679,7 @@ snapshots:
     dependencies:
       '@nx.js/constants': 0.4.0
 
-  '@nx.js/nsp@0.0.67':
+  '@nx.js/nsp@0.0.68':
     dependencies:
       '@nx.js/patch-nacp': 2.0.0
       '@tootallnate/hacbrewpack': 0.0.1
@@ -1701,11 +1698,11 @@ snapshots:
       title-case: 4.3.2
       types-package-json: 2.0.39
 
-  '@nx.js/runtime@0.0.67': {}
+  '@nx.js/runtime@0.0.68': {}
 
   '@nx.js/util@1.1.0': {}
 
-  '@react-tela/core@1.0.0':
+  '@react-tela/core@1.0.1':
     dependencies:
       parse-svg-path: 0.1.2
 
@@ -1738,8 +1735,6 @@ snapshots:
       '@tootallnate/nacp': 0.2.0
 
   '@tootallnate/nsp@0.0.2': {}
-
-  '@tootallnate/romfs@0.1.0': {}
 
   '@tootallnate/romfs@0.1.1': {}
 
@@ -2110,9 +2105,9 @@ snapshots:
       '@remix-run/router': 1.20.0
       react: 18.3.1
 
-  react-tela@1.0.0(react@18.3.1):
+  react-tela@1.0.1(react@18.3.1):
     dependencies:
-      '@react-tela/core': 1.0.0
+      '@react-tela/core': 1.0.1
       react: 18.3.1
       react-reconciler: 0.29.2(react@18.3.1)
 

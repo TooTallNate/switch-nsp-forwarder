@@ -31,13 +31,13 @@
     "jimp": "^1.6.0",
     "react": "^18.3.1",
     "react-router-dom": "6.27.0",
-    "react-tela": "^1.0.0"
+    "react-tela": "^1.0.1"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@nx.js/nro": "0.0.67",
-    "@nx.js/nsp": "0.0.67",
-    "@nx.js/runtime": "0.0.67",
+    "@nx.js/nro": "0.0.68",
+    "@nx.js/nsp": "0.0.68",
+    "@nx.js/runtime": "0.0.68",
     "@types/react": "^18.3.23",
     "esbuild": "^0.17.19",
     "typescript": "^5.8.3"

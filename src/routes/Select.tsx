@@ -1,11 +1,11 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Group, Text, useParent } from 'react-tela';
+import { Text, useParent } from 'react-tela';
 import { type AppInfo, apps, pathToAppInfo } from '../apps';
 import { AppTile } from '../components/AppTile';
 import { FilePicker } from '../components/FilePicker';
 import { Footer, FooterItem } from '../components/Footer';
-import { Scrollbar } from '../components/Scrollbar';
+import { ScrollGroup } from '../components/ScrollGroup';
 import { useDirection, useGamepadButton } from '../hooks/use-gamepad';
 
 export function Select() {
@@ -13,6 +13,7 @@ export function Select() {
 	const navigate = useNavigate();
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const [filePickerShowing, setFilePickerShowing] = useState(false);
+	const [scrollTop, setScrollTop] = useState(0);
 
 	const perRow = 5;
 	const focused = !filePickerShowing;
@@ -21,20 +22,22 @@ export function Select() {
 	const tileHeight = viewportWidth / perRow;
 	const totalRows = Math.ceil(apps.length / perRow);
 	const contentHeight = totalRows * tileHeight;
-
-	// Calculate scroll position to keep selected row centered in the viewport
-	const selectedRow = Math.floor(selectedIndex / perRow);
 	const rowsVisible = Math.floor(viewportHeight / tileHeight);
+
+	// When selectedIndex changes via gamepad, center the selected row in the viewport
+	const selectedRow = Math.floor(selectedIndex / perRow);
 	const centerRow = Math.floor(rowsVisible / 2);
-	const scrollTop = Math.max(
-		0,
-		Math.min(
-			(selectedRow - centerRow) * tileHeight,
-			contentHeight - viewportHeight,
-		),
-	);
-	// Scrollbar uses item-based offset
-	const scrollOffset = Math.round(scrollTop / tileHeight);
+	useEffect(() => {
+		setScrollTop(
+			Math.max(
+				0,
+				Math.min(
+					(selectedRow - centerRow) * tileHeight,
+					contentHeight - viewportHeight,
+				),
+			),
+		);
+	}, [selectedRow, centerRow, tileHeight, contentHeight, viewportHeight]);
 
 	const goToEdit = useCallback(
 		(appInfo: AppInfo) => {
@@ -113,12 +116,15 @@ export function Select() {
 				{apps[selectedIndex].path}
 			</Text>
 
-			<Group
+			<ScrollGroup
 				y={40}
 				width={viewportWidth}
 				height={viewportHeight}
 				contentHeight={contentHeight}
 				scrollTop={scrollTop}
+				onScrollTopChange={setScrollTop}
+				numEntries={totalRows}
+				itemsPerPage={rowsVisible}
 			>
 				{apps.map((app, i) => (
 					<AppTile
@@ -130,15 +136,7 @@ export function Select() {
 						selected={selectedIndex === i}
 					/>
 				))}
-			</Group>
-			<Scrollbar
-				height={viewportHeight}
-				x={viewportWidth}
-				y={40}
-				numEntries={totalRows}
-				itemsPerPage={rowsVisible}
-				scrollOffset={scrollOffset}
-			/>
+			</ScrollGroup>
 
 			<Footer>
 				<FooterItem button='Plus' x={root.ctx.canvas.width - 560}>

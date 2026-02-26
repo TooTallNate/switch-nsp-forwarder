@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Group, Rect, Text, useParent } from 'react-tela';
 import { useDirection, useGamepadButton } from '../hooks/use-gamepad';
 import { isDirectory } from '../util';
-import { Scrollbar } from './Scrollbar';
+import { ScrollGroup } from './ScrollGroup';
 
 interface Entry {
 	name: string;
@@ -18,7 +18,7 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 	const [dir, setDir] = useState(new URL('sdmc:/'));
 	const [entries, setEntries] = useState<Entry[]>([]);
 	const [selectedIndex, setSelectedIndex] = useState(0);
-	const [scrollOffset, setScrollOffset] = useState(0);
+	const [scrollTop, setScrollTop] = useState(0);
 	const root = useParent();
 	const focused = true;
 	const numEntries = entries.length;
@@ -30,7 +30,8 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 	const itemsPerPage = Math.floor(visibleHeight / itemTotalHeight);
 	const centeringPadding = Math.floor((visibleHeight % itemTotalHeight) / 2);
 	const contentHeight = numEntries * itemTotalHeight;
-	const scrollTop = scrollOffset * itemTotalHeight;
+	// Derive integer scroll offset from pixel scrollTop for gamepad navigation
+	const scrollOffset = Math.round(scrollTop / itemTotalHeight);
 
 	const doSelect = useCallback(
 		(entry: Entry) => {
@@ -67,14 +68,12 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 				const newIndex = Math.max(0, i - 1);
 				// If we're at the top of the visible area and there are items above
 				if (newIndex < scrollOffset && scrollOffset > 0) {
-					setScrollOffset(newIndex);
+					setScrollTop(newIndex * itemTotalHeight);
 				}
 				return newIndex;
 			});
 		},
-		// scrollOffset is necessary to work right, but causes a shortcut in the delay logic.
-		// this is a non-ideal behavior, but the UX isn't THAT bad despite it being a bug.
-		[numEntries, scrollOffset, itemsPerPage],
+		[numEntries, scrollOffset, itemsPerPage, itemTotalHeight],
 		focused,
 		true,
 	);
@@ -86,16 +85,15 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 				const newIndex = Math.min(numEntries - 1, i + 1);
 				// If we're at the bottom of the visible area and there are items below
 				if (newIndex >= scrollOffset + itemsPerPage) {
-					setScrollOffset((offset) =>
-						Math.min(numEntries - itemsPerPage, offset + 1),
+					setScrollTop(
+						Math.min(numEntries - itemsPerPage, scrollOffset + 1) *
+							itemTotalHeight,
 					);
 				}
 				return newIndex;
 			});
 		},
-		// scrollOffset is necessary to work right, but causes a shortcut in the delay logic.
-		// this is a non-ideal behavior, but the UX isn't THAT bad despite it being a bug.
-		[numEntries, scrollOffset, itemsPerPage],
+		[numEntries, scrollOffset, itemsPerPage, itemTotalHeight],
 		focused,
 		true,
 	);
@@ -144,7 +142,7 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 		);
 		// Reset when changing directories
 		setSelectedIndex(0);
-		setScrollOffset(0);
+		setScrollTop(0);
 	}, [dir]);
 
 	return (
@@ -161,31 +159,28 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 					fill='black'
 					lineWidth={4}
 				/>
-				<Group
-					width={visibleWidth}
-					height={visibleHeight - centeringPadding * 2}
-					contentHeight={contentHeight}
-					scrollTop={scrollTop}
-					y={centeringPadding}
-					x={0}
-				>
-					{entries.map((entry, i) => (
-						<FilePickerItem
-							key={entry.name}
-							entry={entry}
-							index={i}
-							selected={i === selectedIndex}
-							width={visibleWidth}
-						/>
-					))}
-				</Group>
-				<Scrollbar
-					height={visibleHeight}
-					x={visibleWidth}
-					numEntries={numEntries}
-					itemsPerPage={itemsPerPage}
-					scrollOffset={scrollOffset}
-				/>
+				{numEntries > 0 && (
+					<ScrollGroup
+						width={visibleWidth}
+						height={visibleHeight - centeringPadding * 2}
+						contentHeight={contentHeight}
+						scrollTop={scrollTop}
+						onScrollTopChange={setScrollTop}
+						numEntries={numEntries}
+						itemsPerPage={itemsPerPage}
+						y={centeringPadding}
+					>
+						{entries.map((entry, i) => (
+							<FilePickerItem
+								key={entry.name}
+								entry={entry}
+								index={i}
+								selected={i === selectedIndex}
+								width={visibleWidth}
+							/>
+						))}
+					</ScrollGroup>
+				)}
 				<Rect
 					width={visibleWidth}
 					height={visibleHeight}
