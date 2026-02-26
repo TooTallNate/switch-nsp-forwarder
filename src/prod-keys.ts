@@ -1,10 +1,13 @@
 import { splCryptoGenerateAesKek, splCryptoGenerateAesKey } from './ipc/spl';
 import { abToHex } from './util';
 
-export let prodKeys = Switch.readFileSync('sdmc:/switch/prod.keys');
+const prodKeysFile = Switch.readFileSync('sdmc:/switch/prod.keys');
 
-if (prodKeys) {
+export let prodKeys: string | null = null;
+
+if (prodKeysFile) {
 	console.debug('Found `prod.keys` file');
+	prodKeys = new TextDecoder().decode(prodKeysFile);
 } else {
 	// If there is no `prod.keys` file, then generate the header key from the "spl" service.
 
@@ -36,8 +39,7 @@ if (prodKeys) {
 		`Generated header key from "spl" service: ${keyHex.slice(0, 8)}...${keyHex.slice(-8)}`,
 	);
 
-	const prodKeysText = `header_key = ${keyHex}
+	prodKeys = `header_key = ${keyHex}
 key_area_key_application_00 = 00000000000000000000000000000001
 `;
-	prodKeys = new TextEncoder().encode(prodKeysText);
 }
