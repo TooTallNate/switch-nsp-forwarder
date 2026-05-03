@@ -18,17 +18,15 @@ jobs:
       FORCE_COLOR: 3
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 9.10.0
+        uses: pnpm/action-setup@v6
 
-      - name: Setup Node.js 20.x
-        uses: actions/setup-node@v4
+      - name: Setup Node.js 24.x
+        uses: actions/setup-node@v6
         with:
-          node-version: 20.x
+          node-version: 24.x
           cache: "pnpm"
 
       - name: Install Dependencies
@@ -41,7 +39,7 @@ jobs:
         run: pnpm nro
 
       - name: Upload `nsp-forwarder.nro` Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nsp-forwarder.nro
           path: nsp-forwarder.nro
@@ -51,17 +49,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 9.10.0
+        uses: pnpm/action-setup@v6
 
-      - name: Setup Node.js 20.x
-        uses: actions/setup-node@v4
+      - name: Setup Node.js 24.x
+        uses: actions/setup-node@v6
         with:
-          node-version: 20.x
+          node-version: 24.x
           cache: "pnpm"
 
       - name: Install Dependencies
@@ -76,17 +72,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 9.10.0
+        uses: pnpm/action-setup@v6
 
-      - name: Setup Node.js 20.x
-        uses: actions/setup-node@v4
+      - name: Setup Node.js 24.x
+        uses: actions/setup-node@v6
         with:
-          node-version: 20.x
+          node-version: 24.x
           cache: "pnpm"
 
       - name: Install Dependencies
