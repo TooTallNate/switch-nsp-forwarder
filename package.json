@@ -23,26 +23,34 @@
     "email": "n@n8.io"
   },
   "packageManager": "pnpm@10.33.2+sha512.a90faf6feeab71ad6c6e57f94e0fe1a12f5dcc22cd754db40ae9593eb6a3e0b6b12e3540218bb37ae083404b1f2ce6db2a4121e979829b4aff94b99f49da1cf8",
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"],
+    "overrides": {
+      "terminal-image": "^4.3.0",
+      "@xmldom/xmldom": "^0.8.13",
+      "jimp": "1.6.0"
+    }
+  },
   "dependencies": {
     "@nx.js/clkrst": "^1.0.1",
     "@nx.js/constants": "^0.4.0",
     "@nx.js/install-title": "^0.0.3",
     "@nx.js/ncm": "^1.2.0",
     "@tootallnate/nacp": "^0.2.0",
-    "jimp": "^1.6.0",
+    "jimp": "1.6.0",
     "react": "^18.3.1",
-    "react-router-dom": "6.27.0",
+    "react-router-dom": "^6.30.2",
     "react-tela": "^1.0.1"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@changesets/changelog-github": "^0.6.0",
     "@changesets/cli": "^2.31.0",
-    "@nx.js/nro": "0.0.68",
-    "@nx.js/nsp": "0.0.68",
-    "@nx.js/runtime": "0.0.68",
+    "@nx.js/nro": "0.0.69",
+    "@nx.js/nsp": "0.0.69",
+    "@nx.js/runtime": "0.0.69",
     "@types/react": "^18.3.23",
-    "esbuild": "^0.17.19",
+    "esbuild": "^0.28.0",
     "typescript": "^5.8.3"
   }
 }
