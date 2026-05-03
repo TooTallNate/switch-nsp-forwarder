@@ -1,0 +1,115 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      FORCE_COLOR: 3
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9.10.0
+
+      - name: Setup Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: "pnpm"
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Either opens/updates a "Version Packages" PR (if there are unreleased
+      # changesets), or signals that the version PR was just merged
+      # (`hasChangesets == 'false'`), in which case we proceed to build the
+      # artifacts and cut a GitHub Release below.
+      - name: Create Version PR
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          version: pnpm changeset version
+          # Skip the action's built-in publish step — we handle releases
+          # ourselves so we can attach `.nro` and `.nsp` assets.
+          publish: "echo skip"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Read Package Version
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        id: version
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Check if Release Already Exists
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        id: check_release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          if gh release view "$VERSION" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build `nsp-forwarder.nro`
+        if: steps.changesets.outputs.hasChangesets == 'false' && steps.check_release.outputs.exists == 'false'
+        run: pnpm nro
+
+      - name: Build `nsp-forwarder.nsp`
+        if: steps.changesets.outputs.hasChangesets == 'false' && steps.check_release.outputs.exists == 'false'
+        run: pnpm nsp
+
+      - name: Extract Release Notes
+        if: steps.changesets.outputs.hasChangesets == 'false' && steps.check_release.outputs.exists == 'false'
+        id: notes
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          # Pull out the section of CHANGELOG.md for the just-released version.
+          # CHANGELOG entries look like:
+          #   # nsp-forwarder
+          #
+          #   ## 0.0.8
+          #   ...notes...
+          #   ## 0.0.7
+          node -e "
+            const fs = require('fs');
+            const version = process.env.VERSION;
+            const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
+            const re = new RegExp('## ' + version.replace(/\\./g, '\\\\.') + '\\\\n([\\\\s\\\\S]*?)(?=\\\\n## |$)');
+            const match = changelog.match(re);
+            const body = match ? match[1].trim() : '';
+            fs.writeFileSync('RELEASE_NOTES.md', body);
+          "
+          echo "Release notes:"
+          cat RELEASE_NOTES.md
+
+      - name: Create GitHub Release
+        if: steps.changesets.outputs.hasChangesets == 'false' && steps.check_release.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          gh release create "$VERSION" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "$VERSION" \
+            --notes-file RELEASE_NOTES.md \
+            nsp-forwarder.nro \
+            nsp-forwarder.nsp
