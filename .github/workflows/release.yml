@@ -71,6 +71,22 @@ jobs:
         if: steps.changesets.outputs.hasChangesets == 'false' && steps.check_release.outputs.exists == 'false'
         run: pnpm nro
 
+      - name: Write Switch Keyset
+        if: steps.changesets.outputs.hasChangesets == 'false' && steps.check_release.outputs.exists == 'false'
+        env:
+          PROD_KEYS: ${{ secrets.PROD_KEYS }}
+        run: |
+          if [ -z "$PROD_KEYS" ]; then
+            echo "::error::PROD_KEYS secret is not set. Add the contents of prod.keys as a repository secret named PROD_KEYS." >&2
+            exit 1
+          fi
+          mkdir -p "$HOME/.switch"
+          # `printenv` avoids logging the secret to stdout (which `echo "$PROD_KEYS"` would not, but
+          # printenv is more obviously safe). The runner masks the secret in logs anyway, but defense
+          # in depth.
+          printenv PROD_KEYS > "$HOME/.switch/prod.keys"
+          chmod 600 "$HOME/.switch/prod.keys"
+
       - name: Build `nsp-forwarder.nsp`
         if: steps.changesets.outputs.hasChangesets == 'false' && steps.check_release.outputs.exists == 'false'
         run: pnpm nsp
