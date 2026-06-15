@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Text, useParent } from 'react-tela';
 import type { AppInfo } from '../apps';
@@ -6,7 +6,7 @@ import { AppIcon } from '../components/AppIcon';
 import { Footer, FooterItem } from '../components/Footer';
 import { TextInput } from '../components/TextInput';
 import { useGamepadButton } from '../hooks/use-gamepad';
-import { generateRandomID } from '../title-id';
+import { generateDeterministicID } from '../title-id';
 import type { GenerateState } from './Generate';
 
 export interface EditState extends AppInfo {
@@ -18,17 +18,7 @@ export function Edit() {
 	const { icon } = initialState;
 	const root = useParent();
 	const navigate = useNavigate();
-	const [id, setId] = useState(() => {
-		let idVal = 0n;
-		try {
-			idVal = BigInt(`0x${initialState.id}`);
-		} catch (err) {
-			console.debug(
-				`Failed to parse id: ${initialState.id} for ${initialState.path}`,
-			);
-		}
-		return idVal === 0n ? generateRandomID() : initialState.id;
-	});
+	const [id, setId] = useState('');
 	const [name, setName] = useState(() => initialState.name);
 	const [author, setAuthor] = useState(() => initialState.author);
 	const [version, setVersion] = useState(() => initialState.version);
@@ -38,6 +28,16 @@ export function Edit() {
 		decodeURI(initialState.romPath ?? ''),
 	);
 	const [focusedIndex, setFocusedIndex] = useState(-1);
+
+	// Generate a deterministic title ID based on the NRO path and arguments.
+	// This matches sphaira's logic so the same NRO always gets the same title ID.
+	useEffect(() => {
+		let argv = nroPath;
+		if (romPath) {
+			argv += ` "${romPath}"`;
+		}
+		generateDeterministicID(nroPath, argv).then(setId);
+	}, [nroPath, romPath]);
 
 	const fields = [
 		{ name: 'Title ID', value: id, onChange: setId, description: '' },
