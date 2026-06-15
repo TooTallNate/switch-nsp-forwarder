@@ -51,14 +51,14 @@ importers:
         specifier: ^2.31.0
         version: 2.31.0
       '@nx.js/nro':
-        specifier: 0.0.69
-        version: 0.0.69
+        specifier: 1.0.0-beta.4
+        version: 1.0.0-beta.4
       '@nx.js/nsp':
-        specifier: 0.0.69
-        version: 0.0.69
+        specifier: 1.0.0-beta.4
+        version: 1.0.0-beta.4
       '@nx.js/runtime':
-        specifier: 0.0.69
-        version: 0.0.69
+        specifier: 1.0.0-beta.4
+        version: 1.0.0-beta.4
       '@types/react':
         specifier: ^18.3.23
         version: 18.3.23
@@ -500,22 +500,22 @@ packages:
   '@nx.js/ncm@1.2.0':
     resolution: {integrity: sha512-azxdrFxu6BnRcpydU2aoipwGHONnLtk4q8kg44aZ+GKe3fHsiEqNYvG5f/Y80OTFScTiLor5d53t7l0gbb65Nw==}
 
-  '@nx.js/nro@0.0.69':
-    resolution: {integrity: sha512-Be7kSjtGJcm86Cbwl+2ca9UMyAsLyRcGXL3Xq9UDFA2tizWKKgAfXgFFKt6E2T2R5V2YVlExDK9Ll3JHMjjsbg==}
+  '@nx.js/nro@1.0.0-beta.4':
+    resolution: {integrity: sha512-Lqy+641dpI6BiOKuyYHpzcInPn/rhD3VdKmHoGITJr0oCagmCASCLPKVseRj+4SzqvcIFVyUWd79i8y5GLHiwg==}
     hasBin: true
 
   '@nx.js/ns@1.0.0':
     resolution: {integrity: sha512-9l9OM/VP9jfnp8zJ78SDKVqRbD4nOGXvFgfmex5B8njM+9CZy6+R0R8KXrRnkShI/+8zeZYjgPjzDFyg4YUeoA==}
 
-  '@nx.js/nsp@0.0.69':
-    resolution: {integrity: sha512-k/njcg3c1H9iUejB4HpPOKe2v9bXtp91N9/Y2Brm/+sfbT0Typ5A0qFGEdegt90uwxJ70jVIC0rKxjEoo9BJww==}
+  '@nx.js/nsp@1.0.0-beta.4':
+    resolution: {integrity: sha512-fqyCoRYXgastNOiVSDq6eRkbCXr5BQKa6pWbq0hH9QqEoi80nt6KoYcFqC7jdT6axet8MNtt62doqO3806B7KA==}
     hasBin: true
 
   '@nx.js/patch-nacp@2.0.0':
     resolution: {integrity: sha512-px4mL57q5g167kvo3wguxe2i/Ky5By9i5SBN3dmdGr6Mlo3JwHRGILegFLux0sjClU0LEwJWMWdoFShinOuwqw==}
 
-  '@nx.js/runtime@0.0.69':
-    resolution: {integrity: sha512-Gjiq7PizVhosDGcUwtpxl122+DkC/hKPK/SlLDSRq5DHAQ+7TfOxOg2lxKb0sbxPW3Ao7yvwWzVCLJQtLwjQPw==}
+  '@nx.js/runtime@1.0.0-beta.4':
+    resolution: {integrity: sha512-iKK+7ZtKc35wBsI87WLNx3W3p2URtPs3uqnBOMyUC7cQBP7ozPF8zK4KFSSNJHbl2jQVuPLN7TRGnLRXLJHG1w==}
 
   '@nx.js/util@1.1.0':
     resolution: {integrity: sha512-UUWJCFpFSKHhp3HYrKk+BVmUpS2JxD55Dqhw6TJTmOaTI3HKOqQJJlIOwK/GRRW3VTXAOO13x+k4BHxFy7jnPg==}
@@ -581,10 +581,6 @@ packages:
     resolution: {integrity: sha512-/6w/C21Pm1A7aZitlI5Ni/2J6FFQN8i1Cvz3kHABAAbw93v/NlvKdVOqz7CCWz/3iv/JplRSEEZ83XION15ovw==}
     engines: {node: '>=6'}
 
-  ansi-escapes@7.0.0:
-    resolution: {integrity: sha512-GdYO7a61mR0fOlAsvC9/rIHf7L96sBc6dEWzeOu+KAea5bZyQRPIpojrVoI4AXGJS/ycu/fBTdLrUkA4ODrvjw==}
-    engines: {node: '>=18'}
-
   ansi-escapes@7.3.0:
     resolution: {integrity: sha512-BvU8nYgGQBxcmMuEeUEmNTvrMVjJNSH7RgW24vXexN4Ven6qCvy4TntnvlnwnMLTVlcRQQdbRY8NKnaIoeWDNg==}
     engines: {node: '>=18'}
@@ -646,10 +642,6 @@ packages:
   bytes@3.1.2:
     resolution: {integrity: sha512-/Nf7TyzTx6S3yRJObOAV7956r8cr2+Oj8AC5dt8wSP3BQAoeX58NoHyCU8P8zGkNXStjTSi6fzO6F0pBdcYbEg==}
     engines: {node: '>= 0.8'}
-
-  chalk@5.4.1:
-    resolution: {integrity: sha512-zgVZuo2WcZgfUEmsn6eO3kINexW8RAE4maiQ8QNs8CtpPCSyMiYsULR3HQYkm3w8FIA3SberyMJMSldGsW+U3w==}
-    engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
 
   chalk@5.6.2:
     resolution: {integrity: sha512-7NzBL0rN6fMUW+f7A6Io4h40qQlG+xGmtMxfbnH/K7TAtt8JQWVQK+6g0UXKMeVJoyV5EkkNsErQ8pVD3bLHbA==}
@@ -1757,27 +1749,27 @@ snapshots:
       '@nx.js/constants': 0.4.0
       '@nx.js/util': 1.1.0
 
-  '@nx.js/nro@0.0.69':
+  '@nx.js/nro@1.0.0-beta.4':
     dependencies:
       '@nx.js/patch-nacp': 2.0.0
       '@tootallnate/nacp': 0.2.0
       '@tootallnate/nro': 0.1.2
       '@tootallnate/romfs': 0.1.1
       bytes: 3.1.2
-      chalk: 5.4.1
+      chalk: 5.6.2
       terminal-image: 4.3.0
 
   '@nx.js/ns@1.0.0':
     dependencies:
       '@nx.js/constants': 0.4.0
 
-  '@nx.js/nsp@0.0.69':
+  '@nx.js/nsp@1.0.0-beta.4':
     dependencies:
       '@nx.js/patch-nacp': 2.0.0
       '@tootallnate/hacbrewpack': 0.0.1
       '@tootallnate/nacp': 0.2.0
       bytes: 3.1.2
-      chalk: 5.4.1
+      chalk: 5.6.2
       jimp: 1.6.0
       terminal-image: 4.3.0
 
@@ -1788,7 +1780,7 @@ snapshots:
       title-case: 4.3.2
       types-package-json: 2.0.39
 
-  '@nx.js/runtime@0.0.69': {}
+  '@nx.js/runtime@1.0.0-beta.4': {}
 
   '@nx.js/util@1.1.0': {}
 
@@ -1847,10 +1839,6 @@ snapshots:
 
   ansi-colors@4.1.3: {}
 
-  ansi-escapes@7.0.0:
-    dependencies:
-      environment: 1.1.0
-
   ansi-escapes@7.3.0:
     dependencies:
       environment: 1.1.0
@@ -1897,8 +1885,6 @@ snapshots:
       ieee754: 1.2.1
 
   bytes@3.1.2: {}
-
-  chalk@5.4.1: {}
 
   chalk@5.6.2: {}
 
@@ -2402,7 +2388,7 @@ snapshots:
 
   term-img@7.0.0:
     dependencies:
-      ansi-escapes: 7.0.0
+      ansi-escapes: 7.3.0
       iterm2-version: 5.0.0
 
   term-size@2.2.1: {}
