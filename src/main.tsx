@@ -1,4 +1,4 @@
-import { openSession, PcvModuleId } from '@nx.js/clkrst';
+import { PcvModuleId, openSession } from '@nx.js/clkrst';
 
 const session = openSession(PcvModuleId.CpuBus);
 const originalClockRate = session.getClockRate();
@@ -8,28 +8,20 @@ addEventListener('unload', () => {
 	session.setClockRate(originalClockRate);
 });
 
-import { render } from 'react-tela/render';
 import { RouterProvider, createMemoryRouter } from 'react-router-dom';
-import { AppletType } from '@nx.js/constants';
-import { prodKeys } from './prod-keys';
+import { render } from 'react-tela/render';
 
+import { Edit } from './routes/Edit';
+import { RouteErrorBoundary } from './routes/Error';
 // Routes
-import { ErrorAppletMode } from './routes/ErrorAppletMode';
 import { ErrorMissingProdKeys } from './routes/ErrorMissingProdKeys';
 import { Generate } from './routes/Generate';
 import { Select } from './routes/Select';
 import { SelectForwarderType } from './routes/SelectForwarderType';
 import { SelectRetroArch } from './routes/SelectRetroArch';
 import { Success } from './routes/Success';
-import { RouteErrorBoundary } from './routes/Error';
-import { Edit } from './routes/Edit';
 
 const routes = [
-	{
-		path: '/error-applet-mode',
-		element: <ErrorAppletMode />,
-		errorElement: <RouteErrorBoundary />,
-	},
 	{
 		path: '/error-missing-prod-keys',
 		element: <ErrorMissingProdKeys />,
@@ -67,14 +59,7 @@ const routes = [
 	},
 ];
 
-let initialRoute = '/select-forwarder-type';
-if (Switch.appletType() !== AppletType.Application) {
-	// Ensure the app is running in full-memory mode
-	initialRoute = '/error-applet-mode';
-} else if (!prodKeys) {
-	// Ensure the `prod.keys` file exists
-	initialRoute = '/error-missing-prod-keys';
-}
+const initialRoute = '/select-forwarder-type';
 
 const router = createMemoryRouter(routes, {
 	initialEntries: [initialRoute],

@@ -1,13 +1,39 @@
-import { Jimp } from 'jimp';
-import { Text } from 'react-tela';
-import { NACP } from '@tootallnate/nacp';
-import { NcmStorageId } from '@nx.js/ncm';
 import { installNsp } from '@nx.js/install-title';
+import { NcmStorageId } from '@nx.js/ncm';
+import { buildNsp } from '@tootallnate/hacbrewpack';
+import { NACP } from '@tootallnate/nacp';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { prodKeys } from '../prod-keys';
-import type { Module } from '../hacbrewpack';
+import { Text } from 'react-tela';
 import type { AppInfo } from '../apps';
+import { prodKeys } from '../prod-keys';
+
+const MAX_ICON_SIZE = 0x20000;
+
+async function processIcon(icon: Uint8Array): Promise<Uint8Array> {
+	if (icon.byteLength < MAX_ICON_SIZE) {
+		return icon;
+	}
+
+	const bitmap = await createImageBitmap(new Blob([icon]));
+	const canvas = new OffscreenCanvas(256, 256);
+	const ctx = canvas.getContext('2d');
+	ctx.fillStyle = 'white';
+	ctx.fillRect(0, 0, 256, 256);
+	ctx.drawImage(bitmap, 0, 0, 256, 256);
+	bitmap.close();
+
+	let quality = 1;
+	while (true) {
+		const blob = await canvas.convertToBlob({
+			type: 'image/jpeg',
+			quality,
+		});
+		const buf = new Uint8Array(await blob.arrayBuffer());
+		if (buf.byteLength < MAX_ICON_SIZE || quality <= 0.02) return buf;
+		quality -= 0.02;
+	}
+}
 
 type Status = 'generating' | 'installing' | 'error' | 'success';
 
@@ -37,8 +63,6 @@ export function Generate() {
 	useEffect(() => {
 		async function g() {
 			const start = Date.now();
-			const ModuleFactory = await import('../hacbrewpack.js');
-			const helloWasm = Switch.readFileSync('romfs:/hacbrewpack.wasm');
 			const mainData = Switch.readFileSync('romfs:/template/exefs/main');
 			const mainNpdmData = Switch.readFileSync(
 				'romfs:/template/exefs/main.npdm',
@@ -51,11 +75,6 @@ export function Generate() {
 			if (!author) {
 				setStatus('error');
 				setError('missing `author` field');
-				return;
-			}
-			if (!helloWasm) {
-				setStatus('error');
-				setError('missing `hacbrewpack.wasm` file');
 				return;
 			}
 			if (!prodKeys) {
@@ -74,159 +93,99 @@ export function Generate() {
 				return;
 			}
 
-			const main = new Uint8Array(mainData);
-			const mainNpdm = new Uint8Array(mainNpdmData);
-			const keys = new Uint8Array(prodKeys);
-
-			// Run the icon through Jimp to resize it and/or remove EXIF metadata
-			let iconBuf = icon;
+			// Use the icon as-is when it already fits. Oversized icons are resized and
+			// re-encoded via native canvas instead of running a JS JPEG encoder on the
+			// Switch CPU, which is too slow in applet mode.
+			let iconBuf = icon ? new Uint8Array(icon) : undefined;
 			if (iconBuf) {
-				const logo = await Jimp.fromBuffer(iconBuf);
-				logo.resize({ w: 256, h: 256 });
-
-				// The icon size must be less than 0x20000 bytes otherwise
-				// Atmosphère shows a "?" icon on the home screen, so we
-				// generate the JPEG in a loop until we get a smaller icon.
-				let quality = 100;
-				while (true) {
-					iconBuf = await logo.getBuffer('image/jpeg', { quality });
-					console.debug(
-						`icon size: ${iconBuf.byteLength} with JPEG quality ${quality}%`,
-					);
-
-					if (iconBuf.byteLength < 0x20000) {
-						// The generated icon is within the allowed size, so we're done.
-						break;
-					}
-
-					// Icon is too large, so reduce the JPEG quality and try again.
-					quality -= 2;
-					if (quality <= 0) {
-						console.debug('icon size is still too large - giving up...');
-						break;
-					}
-					console.debug(
-						`icon size is too large, reducing JPEG quality to ${quality}%`,
-					);
-				}
+				iconBuf = await processIcon(iconBuf);
 			}
 
-			let Module: Module;
-			await ModuleFactory.default({
-				noInitialRun: true,
-				wasmBinary: helloWasm,
-				print(text) {
-					console.debug(text);
-					setLogs((logs) => `${logs + text}\n`);
-				},
-				printErr(text) {
-					console.debug(text);
-					setLogs((logs) => `${logs + text}\n`);
-				},
-				preRun(_Module) {
-					Module = _Module;
-					const { FS } = Module;
+			const log = (text: string) => {
+				console.debug(text);
+				setLogs((logs) => `${logs + text}\n`);
+			};
 
-					FS.writeFile('/keys.dat', keys);
+			try {
+				log('Building NSP...');
 
-					FS.mkdir('/exefs');
-					FS.writeFile('/exefs/main', main);
-					FS.writeFile('/exefs/main.npdm', mainNpdm);
+				// Build NACP
+				const nacp = new NACP();
+				nacp.id = id;
+				nacp.title = name;
+				nacp.author = author;
+				nacp.version = version;
+				nacp.startupUserAccount = profileSelector ? 1 : 0;
 
-					const nacp = new NACP();
-					nacp.id = id;
-					nacp.title = name;
-					nacp.author = author;
-					nacp.version = version;
+				// Prepare control files
+				const control = new Map<string, Uint8Array>();
+				control.set('control.nacp', new Uint8Array(nacp.buffer));
+				if (iconBuf) {
+					control.set('icon_AmericanEnglish.dat', new Uint8Array(iconBuf));
+				}
 
-					nacp.startupUserAccount = profileSelector ? 1 : 0;
+				// Prepare romfs
+				const encoder = new TextEncoder();
+				let argv = path;
+				if (romPath) {
+					argv += ` "${romPath}"`;
+				}
+				const romfs = {
+					nextArgv: new Blob([encoder.encode(argv)]),
+					nextNroPath: new Blob([encoder.encode(path)]),
+				};
 
-					FS.mkdir('/control');
-					FS.writeFile('/control/control.nacp', new Uint8Array(nacp.buffer));
+				const result = await buildNsp({
+					keys: prodKeys,
+					titleId: id,
+					plaintext: true,
+					noPatchNacpLogo: true,
+					noLogo: true,
+					noSignNcaSig2: true,
+					exefs: new Map([
+						['main', new Uint8Array(mainData)],
+						['main.npdm', new Uint8Array(mainNpdmData)],
+					]),
+					control,
+					romfs,
+				});
 
-					if (iconBuf) {
-						const image = new Uint8Array(iconBuf);
-						FS.writeFile('/control/icon_AmericanEnglish.dat', image);
+				const duration = Date.now() - start;
+				log(`NSP built in ${duration}ms`);
+
+				if (install) {
+					// Install the generated NSP forwarder
+					setStatus('installing');
+					for await (const event of installNsp(
+						result.nsp,
+						NcmStorageId.SdCard,
+					)) {
+						console.debug(event);
 					}
+					const query = new URLSearchParams({
+						installed: '1',
+						name,
+						duration: String(duration),
+					});
+					navigate(`/success?${query}`);
+				} else {
+					// Save the generated NSP forwarder to the SD card
+					const fileName = `${name.replace(/[:/\\]/g, '-')} [${id}].nsp`;
+					const outUrl = new URL(fileName, 'sdmc:/');
+					const nspData = new Uint8Array(await result.nsp.arrayBuffer());
+					Switch.writeFileSync(outUrl, nspData);
 
-					//FS.mkdir('/logo');
-					//FS.writeFile('/logo/NintendoLogo.png', logo);
-					//FS.writeFile('/logo/StartupMovie.gif', startupMovie);
-
-					FS.mkdir('/romfs');
-					let argv = path;
-					if (romPath) {
-						argv += ` "${romPath}"`;
-					}
-					FS.writeFile('/romfs/nextArgv', argv);
-					FS.writeFile('/romfs/nextNroPath', path);
-				},
-				onRuntimeInitialized: () => {
-					try {
-						const exitCode = Module.callMain([
-							'--nopatchnacplogo',
-							'--titleid',
-							id,
-							'--nologo',
-							'--plaintext',
-						]);
-						console.debug(`exit code: ${exitCode}`);
-
-						if (exitCode === 0) {
-							try {
-								const nspName = Module.FS.readdir('/hacbrewpack_nsp').filter(
-									(n) => n.endsWith('.nsp'),
-								)[0];
-
-								const data = Module.FS.readFile(`/hacbrewpack_nsp/${nspName}`);
-								const duration = Date.now() - start;
-
-								if (install) {
-									// Install the generated NSP forwarder
-									setStatus('installing');
-									(async () => {
-										for await (const event of installNsp(
-											new Blob([data]),
-											NcmStorageId.SdCard,
-										)) {
-											console.debug(event);
-										}
-									})().then(() => {
-										const query = new URLSearchParams({
-											installed: '1',
-											name,
-											duration: String(duration),
-										});
-										navigate(`/success?${query}`);
-									});
-								} else {
-									// Save the generated NSP forwarder to the SD card
-									const fileName = `${name.replace(/[:/\\]/g, '-')} [${id}].nsp`;
-									const outUrl = new URL(fileName, 'sdmc:/');
-									Switch.writeFileSync(outUrl, data);
-
-									const query = new URLSearchParams({
-										name: fileName,
-										duration: String(duration),
-									});
-									navigate(`/success?${query}`);
-								}
-							} catch (err) {
-								setStatus('error');
-								setError(`Failed to locate NSP file: ${err}`);
-								console.debug(`Failed to locate NSP file: ${err}`);
-							}
-						} else {
-							setStatus('error');
-							setError(`exit code: ${exitCode}`);
-						}
-					} catch (err) {
-						setStatus('error');
-						setError(`error: ${err}`);
-						console.debug(err);
-					}
-				},
-			});
+					const query = new URLSearchParams({
+						name: fileName,
+						duration: String(duration),
+					});
+					navigate(`/success?${query}`);
+				}
+			} catch (err) {
+				setStatus('error');
+				setError(`${err}`);
+				console.debug(err);
+			}
 		}
 		setTimeout(g, 50);
 	}, [

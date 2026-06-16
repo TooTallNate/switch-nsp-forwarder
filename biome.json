@@ -20,7 +20,7 @@
     }
   },
   "files": {
-    "ignore": ["romfs", "src/hacbrewpack.js"]
+    "ignore": ["romfs"]
   },
   "javascript": {
     "formatter": {
