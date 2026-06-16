@@ -2,12 +2,38 @@ import { installNsp } from '@nx.js/install-title';
 import { NcmStorageId } from '@nx.js/ncm';
 import { buildNsp } from '@tootallnate/hacbrewpack';
 import { NACP } from '@tootallnate/nacp';
-import { Jimp } from 'jimp';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Text } from 'react-tela';
 import type { AppInfo } from '../apps';
 import { prodKeys } from '../prod-keys';
+
+const MAX_ICON_SIZE = 0x20000;
+
+async function processIcon(icon: Uint8Array): Promise<Uint8Array> {
+	if (icon.byteLength < MAX_ICON_SIZE) {
+		return icon;
+	}
+
+	const bitmap = await createImageBitmap(new Blob([icon]));
+	const canvas = new OffscreenCanvas(256, 256);
+	const ctx = canvas.getContext('2d');
+	ctx.fillStyle = 'white';
+	ctx.fillRect(0, 0, 256, 256);
+	ctx.drawImage(bitmap, 0, 0, 256, 256);
+	bitmap.close();
+
+	let quality = 1;
+	while (true) {
+		const blob = await canvas.convertToBlob({
+			type: 'image/jpeg',
+			quality,
+		});
+		const buf = new Uint8Array(await blob.arrayBuffer());
+		if (buf.byteLength < MAX_ICON_SIZE || quality <= 0.02) return buf;
+		quality -= 0.02;
+	}
+}
 
 type Status = 'generating' | 'installing' | 'error' | 'success';
 
@@ -67,37 +93,12 @@ export function Generate() {
 				return;
 			}
 
-			// Run the icon through Jimp to resize it and/or remove EXIF metadata
-			let iconBuf = icon;
+			// Use the icon as-is when it already fits. Oversized icons are resized and
+			// re-encoded via native canvas instead of running a JS JPEG encoder on the
+			// Switch CPU, which is too slow in applet mode.
+			let iconBuf = icon ? new Uint8Array(icon) : undefined;
 			if (iconBuf) {
-				const logo = await Jimp.fromBuffer(iconBuf);
-				logo.resize({ w: 256, h: 256 });
-
-				// The icon size must be less than 0x20000 bytes otherwise
-				// Atmosphère shows a "?" icon on the home screen, so we
-				// generate the JPEG in a loop until we get a smaller icon.
-				let quality = 100;
-				while (true) {
-					iconBuf = await logo.getBuffer('image/jpeg', { quality });
-					console.debug(
-						`icon size: ${iconBuf.byteLength} with JPEG quality ${quality}%`,
-					);
-
-					if (iconBuf.byteLength < 0x20000) {
-						// The generated icon is within the allowed size, so we're done.
-						break;
-					}
-
-					// Icon is too large, so reduce the JPEG quality and try again.
-					quality -= 2;
-					if (quality <= 0) {
-						console.debug('icon size is still too large - giving up...');
-						break;
-					}
-					console.debug(
-						`icon size is too large, reducing JPEG quality to ${quality}%`,
-					);
-				}
+				iconBuf = await processIcon(iconBuf);
 			}
 
 			const log = (text: string) => {

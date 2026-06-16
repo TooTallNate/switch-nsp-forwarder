@@ -1,4 +1,5 @@
 minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
  - "@nx.js/*"
+ - "@tootallnate/*"
  - react

@@ -10,7 +10,6 @@ addEventListener('unload', () => {
 
 import { RouterProvider, createMemoryRouter } from 'react-router-dom';
 import { render } from 'react-tela/render';
-import { prodKeys } from './prod-keys';
 
 import { Edit } from './routes/Edit';
 import { RouteErrorBoundary } from './routes/Error';
@@ -60,11 +59,7 @@ const routes = [
 	},
 ];
 
-let initialRoute = '/select-forwarder-type';
-if (!prodKeys) {
-	// Ensure the `prod.keys` file exists
-	initialRoute = '/error-missing-prod-keys';
-}
+const initialRoute = '/select-forwarder-type';
 
 const router = createMemoryRouter(routes, {
 	initialEntries: [initialRoute],
