@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Text, useParent } from 'react-tela';
 import type { AppInfo } from '../apps';
 import { AppIcon } from '../components/AppIcon';
+import { FilePicker } from '../components/FilePicker';
 import { Footer, FooterItem } from '../components/Footer';
 import { TextInput } from '../components/TextInput';
 import { useGamepadButton } from '../hooks/use-gamepad';
@@ -13,12 +14,16 @@ export interface EditState extends AppInfo {
 	romPath?: string;
 }
 
+// Image formats supported by Jimp, re-encodes icon as a JPEG in the "Generate" route
+const ICON_EXTENSIONS = ['jpg', 'jpeg', 'png'];
+
 export function Edit() {
 	const initialState: EditState = useLocation().state;
-	const { icon } = initialState;
 	const root = useParent();
 	const navigate = useNavigate();
 	const [id, setId] = useState('');
+	const [icon, setIcon] = useState(() => initialState.icon);
+	const [iconPickerShowing, setIconPickerShowing] = useState(false);
 	const [name, setName] = useState(() => initialState.name);
 	const [author, setAuthor] = useState(() => initialState.author);
 	const [version, setVersion] = useState(() => initialState.version);
@@ -56,6 +61,20 @@ export function Edit() {
 	}
 	const fieldsLength = fields.length;
 	const keyboardShown = navigator.virtualKeyboard.boundingRect.height > 0;
+	const focused = !keyboardShown && !iconPickerShowing;
+
+	const handleIconSelect = useCallback((url: URL) => {
+		try {
+			// I/O error may be thrown for files that are currently open
+			const data = Switch.readFileSync(url);
+			if (data) {
+				setIcon(data);
+			}
+		} catch (err) {
+			console.debug(`Failed to read "${url}": ${err}`);
+		}
+		setIconPickerShowing(false);
+	}, []);
 
 	const goToGenerate = useCallback(
 		(install: boolean) => {
@@ -89,14 +108,24 @@ export function Edit() {
 		'X',
 		() => goToGenerate(true),
 		[goToGenerate],
-		!keyboardShown,
+		focused,
 	);
 
 	useGamepadButton(
 		'Y',
 		() => goToGenerate(false),
 		[goToGenerate],
-		!keyboardShown,
+		focused,
+	);
+
+	useGamepadButton(
+		'L',
+		() => {
+			// Select a custom icon image
+			setIconPickerShowing(true);
+		},
+		[],
+		focused,
 	);
 
 	useGamepadButton(
@@ -106,7 +135,7 @@ export function Edit() {
 			navigate(-1);
 		},
 		[navigate],
-		!keyboardShown,
+		focused,
 	);
 
 	useGamepadButton(
@@ -115,7 +144,7 @@ export function Edit() {
 			setFocusedIndex((i) => Math.max(0, i - 1));
 		},
 		[],
-		!keyboardShown,
+		focused,
 	);
 
 	useGamepadButton(
@@ -124,7 +153,7 @@ export function Edit() {
 			setFocusedIndex((i) => Math.min(fieldsLength - 1, i + 1));
 		},
 		[fieldsLength],
-		!keyboardShown,
+		focused,
 	);
 
 	return (
@@ -153,15 +182,23 @@ export function Edit() {
 						y={80 + i * 50}
 						fontSize={24}
 						fill='white'
-						focused={focusedIndex === i}
+						focused={focusedIndex === i && !iconPickerShowing}
 						onTouchEnd={() => setFocusedIndex(i)}
 					/>
 				</>
 			))}
 
-			<AppIcon icon={icon} x={root.ctx.canvas.width - 320} y={64} />
+			<AppIcon
+				icon={icon}
+				x={root.ctx.canvas.width - 320}
+				y={64}
+				onTouchEnd={() => setIconPickerShowing(true)}
+			/>
 
 			<Footer>
+				<FooterItem button='L' x={root.ctx.canvas.width - 960}>
+					Change Icon
+				</FooterItem>
 				<FooterItem button='B' x={root.ctx.canvas.width - 740}>
 					Back
 				</FooterItem>
@@ -175,6 +212,14 @@ export function Edit() {
 					Install Forwarder
 				</FooterItem>
 			</Footer>
+
+			{iconPickerShowing && (
+				<FilePicker
+					extensions={ICON_EXTENSIONS}
+					onSelect={handleIconSelect}
+					onClose={() => setIconPickerShowing(false)}
+				/>
+			)}
 		</>
 	);
 }
