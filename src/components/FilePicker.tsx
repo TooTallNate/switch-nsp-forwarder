@@ -12,9 +12,10 @@ interface Entry {
 export interface FilePickerProps {
 	onSelect?: (url: URL) => void;
 	onClose?: () => void;
+	extensions?: string[]; // Only show directories and files with these extensions
 }
 
-export function FilePicker({ onSelect, onClose }: FilePickerProps) {
+export function FilePicker({ onSelect, onClose, extensions }: FilePickerProps) {
 	const [dir, setDir] = useState(new URL('sdmc:/'));
 	const [entries, setEntries] = useState<Entry[]>([]);
 	const [selectedIndex, setSelectedIndex] = useState(0);
@@ -132,7 +133,15 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 					console.debug(`Failed to stat "${name}" in "${dir}": ${err}`);
 				}
 			})
-			.filter((v) => typeof v !== 'undefined');
+			.filter((v) => typeof v !== 'undefined')
+			.filter(
+				(entry) =>
+					entry.isDirectory ||
+					!extensions ||
+					extensions.some((ext) =>
+						entry.name.toLowerCase().endsWith(`.${ext}`),
+					),
+			);
 		setEntries(
 			[{ name: '..', isDirectory: true }, ...entries].sort((a, b) => {
 				if (a.isDirectory && !b.isDirectory) return -1;
@@ -143,7 +152,7 @@ export function FilePicker({ onSelect, onClose }: FilePickerProps) {
 		// Reset when changing directories
 		setSelectedIndex(0);
 		setScrollTop(0);
-	}, [dir]);
+	}, [dir, extensions]);
 
 	return (
 		<>
